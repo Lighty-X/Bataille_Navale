@@ -90,7 +90,7 @@ class Grille:
 
 
 # ==========================================================
-# ===              CONFIGURATION DU JEU                   ===
+# ===              CONFIGURATION DU JEU                  ===
 # ==========================================================
 
 def creer_flotte():
@@ -109,4 +109,70 @@ def creer_grille_aleatoire(taille=10):
     for bateau in creer_flotte():
         grille.placer_bateau_aleatoire(bateau)
     return grille
+
+# ==========================================================
+# ===                INTERFACE TKINTER                   ===
+# ==========================================================
+
+class BatailleNavaleApp:
+    def __init__(self, fenetre):
+        self.fenetre = fenetre
+        self.fenetre.title("👾 Bataille Navale 🕹️")
+        self.taille = 10
+
+        # Création des grilles
+        self.grille_joueur = creer_grille_aleatoire(self.taille)
+        self.grille_ennemi = creer_grille_aleatoire(self.taille)
+
+        # Dictionnaires de boutons
+        self.boutons_joueur = {}
+        self.boutons_ennemi = {}
+
+        # Couleurs
+        self.couleurs = {
+            "eau": "#000F52",
+            "bateau": "#4da6ff",
+            "touche": "#ff4d4d",
+            "rate": "#e6f2ff",
+            "texte": "#001f3f",
+        }
+
+        # Titre
+        titre = tk.Label(
+            fenetre,
+            text="Bataille Spatiale",
+            font=("Arial", 18, "bold"),
+            fg="#003366",
+        )
+        titre.pack(pady=10)
+
+        cadre_principal = tk.Frame(fenetre, bg="#f0f8ff", padx=20, pady=10)
+        cadre_principal.pack()
+
+        # Texte d'état
+        self.etat_label = tk.Label(
+            fenetre,
+            text="À ton tour !",
+            font=("Arial", 14, "bold"),
+            fg="#004080",
+        )
+        self.etat_label.pack(pady=10)
+
+        cadre_joueur = tk.LabelFrame(
+            cadre_principal,
+            text="Ton plateau",
+            font=("Arial", 12, "bold"),
+            bg="#e6f3ff",
+        )
+        cadre_ennemi = tk.LabelFrame(
+            cadre_principal,
+            text="Plateau ennemi",
+            font=("Arial", 12, "bold"),
+            bg="#e6f3ff",
+        )
+        cadre_joueur.grid(row=0, column=0, padx=15)
+        cadre_ennemi.grid(row=0, column=1, padx=15)
+
+        self.creer_grille_interface(cadre_joueur, self.boutons_joueur, self.grille_joueur, montrer_bateaux=True)
+        self.creer_grille_interface(cadre_ennemi, self.boutons_ennemi, self.grille_ennemi, montrer_bateaux=False)
 
