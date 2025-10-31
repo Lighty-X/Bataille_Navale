@@ -20,7 +20,6 @@ class Bateau:
         return set(self.positions) <= self.touchees
 
     def enregistrer_tir(self, coord):
-        """Retourne True si le bateau est touché à cette coordonnée."""
         if coord in self.positions:
             self.touchees.add(coord)
             return True
@@ -176,6 +175,33 @@ class BatailleNavaleApp:
         self.creer_grille_interface(cadre_joueur, self.boutons_joueur, self.grille_joueur, montrer_bateaux=True)
         self.creer_grille_interface(cadre_ennemi, self.boutons_ennemi, self.grille_ennemi, montrer_bateaux=False)
 
+    def creer_grille_interface(self, cadre, dictionnaire_boutons, grille, montrer_bateaux):
+        for l in range(self.taille):
+            for c in range(self.taille):
+                if montrer_bateaux and grille.cases[l][c] == Grille.BATEAU:
+                    couleur = self.couleurs["bateau"]
+                else:
+                    couleur = self.couleurs["eau"]
+
+                bouton = tk.Button(
+                    cadre,
+                    text=" ",
+                    width=3,
+                    height=1,
+                    bg=couleur,
+                    fg=self.couleurs["texte"],
+                    font=("Arial", 10, "bold"),
+                    relief="raised"
+                )
+                bouton.grid(row=l, column=c, padx=1, pady=1)
+
+                if not montrer_bateaux:
+                    bouton.config(command=lambda ll=l, cc=c: self.tirer_sur_ennemi(ll, cc))
+                else:
+                    bouton.config(state="disabled")
+
+                dictionnaire_boutons[(l, c)] = bouton
+
     def tirer_sur_ennemi(self, l, c):
         resultat = self.grille_ennemi.recevoir_tir(l, c)
         bouton = self.boutons_ennemi[(l, c)]
@@ -200,7 +226,6 @@ class BatailleNavaleApp:
             return
 
         self.fenetre.after(900, self.tour_ennemi)
-
     # --------------------------------------------------------
     # Tour de l'ennemi
     # --------------------------------------------------------
@@ -234,7 +259,6 @@ class BatailleNavaleApp:
             return
 
         self.etat_label.config(text="À ton tour !")
-
 
 # ==========================================================
 # ===                  LANCEMENT DU JEU                  ===
