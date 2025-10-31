@@ -22,3 +22,13 @@ class Vaisseau:
             return True
         else:
             return False
+
+class Grille:
+    VIDE = 0
+    BATEAU = 1
+    TOUCHE = 2
+    RATE = 3
+
+    def __init__(self, nom, taille=10):
+        self.taille = taille
+        self.cases =
