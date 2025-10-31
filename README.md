@@ -1,4 +1,4 @@
-# Bataille Spatiale
+# Bataille Spatiale : **Nebula Strike**
 
 Ce projet contient nos efforts pour faire le meilleur jeu de bataille navale qui existe
 
