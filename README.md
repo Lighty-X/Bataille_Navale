@@ -15,3 +15,4 @@ Ce projet contient nos efforts pour faire le meilleur jeu de bataille navale qui
   - Permet de dire lorsque le bateau adverse est touché ou non (true ou false)
 - Fonction couler
   - Permet de dire lorsqu’un bateau adverse est coulé
+- Fonction règles
