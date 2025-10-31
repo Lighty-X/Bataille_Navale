@@ -1,4 +1,4 @@
-# Bataille Navale du futur de FOU WOAW ABERRANT
+# Bataille Spatiale
 
 Ce projet contient nos efforts pour faire le meilleur jeu de bataille navale qui existe
 
