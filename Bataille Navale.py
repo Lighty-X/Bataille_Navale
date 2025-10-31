@@ -1,27 +1,31 @@
 import tkinter as tk
-from tkinter import ttk
 from tkinter import messagebox
 import random
 
-class Vaisseau:
+# ==========================================================
+# ===                 CLASSES DU JEU                     ===
+# ==========================================================
+
+class Bateau:
     def __init__(self, nom, taille):
         self.nom = nom
         self.taille = taille
         self.positions = []
-        self.hits = set()
+        self.touchees = set()
 
     def placer(self, positions):
         self.positions = positions
 
-    def coule(self):
-        return set(self.positions)
+    def est_coule(self):
+        return set(self.positions) <= self.touchees
 
-    def enregistrer_tire(self, coordonnées):
-        if coordonnées in self.positions:
-            self.touchees.add(coordonnées)
+    def enregistrer_tir(self, coord):
+        """Retourne True si le bateau est touché à cette coordonnée."""
+        if coord in self.positions:
+            self.touchees.add(coord)
             return True
-        else:
-            return False
+        return False
+
 
 class Grille:
     VIDE = 0
@@ -29,13 +33,13 @@ class Grille:
     TOUCHE = 2
     RATE = 3
 
-    def __init__(self, nom, taille=10):
+    def __init__(self, taille=10):
         self.taille = taille
         self.cases = [[Grille.VIDE for _ in range(taille)] for _ in range(taille)]
-        self.vaisseaux = []
+        self.bateaux = []
 
-    def dans_la_limite(self, l, c):
-        return 0 <= 1 < self.taille and 0 <= c < self.taille
+    def dans_limites(self, l, c):
+        return 0 <= l < self.taille and 0 <= c < self.taille
 
     def ajouter_bateau(self, bateau):
         for (l, c) in bateau.positions:
@@ -85,5 +89,24 @@ class Grille:
         return all(b.est_coule() for b in self.bateaux)
 
 
+# ==========================================================
+# ===              CONFIGURATION DU JEU                   ===
+# ==========================================================
 
+def creer_flotte():
+    #Crée la flotte classique.
+    return [
+        Bateau("Porte-avions", 5),
+        Bateau("Croiseur", 4),
+        Bateau("Destroyer", 3),
+        Bateau("Sous-marin", 3),
+        Bateau("Torpilleur", 2),
+    ]
+
+def creer_grille_aleatoire(taille=10):
+    #Placement aléatoire
+    grille = Grille(taille)
+    for bateau in creer_flotte():
+        grille.placer_bateau_aleatoire(bateau)
+    return grille
 
