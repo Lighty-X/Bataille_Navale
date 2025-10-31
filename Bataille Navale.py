@@ -176,3 +176,76 @@ class BatailleNavaleApp:
         self.creer_grille_interface(cadre_joueur, self.boutons_joueur, self.grille_joueur, montrer_bateaux=True)
         self.creer_grille_interface(cadre_ennemi, self.boutons_ennemi, self.grille_ennemi, montrer_bateaux=False)
 
+    def tirer_sur_ennemi(self, l, c):
+        resultat = self.grille_ennemi.recevoir_tir(l, c)
+        bouton = self.boutons_ennemi[(l, c)]
+
+        if resultat in ("deja", "invalide"):
+            return
+
+        if resultat == "rate":
+            bouton.config(bg=self.couleurs["rate"], text="•", state="disabled")
+            self.etat_label.config(text="Raté...")
+        elif resultat == "touche":
+            bouton.config(bg=self.couleurs["touche"], text="X", state="disabled")
+            self.etat_label.config(text="Touché !")
+        elif resultat.startswith("coule:"):
+            bouton.config(bg=self.couleurs["touche"], text="X", state="disabled")
+            nom_bateau = resultat.split(":")[1]
+            self.etat_label.config(text=f" Tu as coulé le {nom_bateau} !")
+
+        if self.grille_ennemi.tous_coules():
+            messagebox.showinfo("Victoire", "Tous les bateaux ennemis sont coulés !")
+            self.fenetre.destroy()
+            return
+
+        self.fenetre.after(900, self.tour_ennemi)
+
+    # --------------------------------------------------------
+    # Tour de l'ennemi
+    # --------------------------------------------------------
+    def tour_ennemi(self):
+        self.etat_label.config(text="Tour de l'ennemi...")
+        self.fenetre.update()
+
+        coups_possibles = [
+            (l, c)
+            for l in range(self.taille)
+            for c in range(self.taille)
+            if self.grille_joueur.cases[l][c] not in (Grille.TOUCHE, Grille.RATE)
+        ]
+        if not coups_possibles:
+            return
+
+        l, c = random.choice(coups_possibles)
+        resultat = self.grille_joueur.recevoir_tir(l, c)
+        bouton = self.boutons_joueur[(l, c)]
+
+        if resultat == "rate":
+            bouton.config(bg=self.couleurs["rate"], text="•")
+        elif resultat == "touche":
+            bouton.config(bg=self.couleurs["touche"], text="X")
+        elif resultat.startswith("coule:"):
+            bouton.config(bg=self.couleurs["touche"], text="X")
+
+        if self.grille_joueur.tous_coules():
+            messagebox.showinfo("Défaite", "Tous tes bateaux sont coulés...")
+            self.fenetre.destroy()
+            return
+
+        self.etat_label.config(text="À ton tour !")
+
+
+# ==========================================================
+# ===                  LANCEMENT DU JEU                  ===
+# ==========================================================
+
+def main():
+    fenetre = tk.Tk()
+    fenetre.configure(bg="#f0f8ff")
+    app = BatailleNavaleApp(fenetre)
+    fenetre.mainloop()
+
+
+if __name__ == "__main__":
+    main()
