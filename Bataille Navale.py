@@ -95,11 +95,11 @@ class Grille:
 def creer_flotte():
     #Crée la flotte classique.
     return [
-        Bateau("Porte-avions", 5),
-        Bateau("Croiseur", 4),
-        Bateau("Destroyer", 3),
-        Bateau("Sous-marin", 3),
-        Bateau("Torpilleur", 2),
+        Bateau("USS Enterprise (NCC-1701-A)", 5),
+        Bateau("USS Defiant (NX-74205)", 4),
+        Bateau("USS Discovery (NCC-1031)", 3),
+        Bateau("USS Voyager (NCC-74656)", 3),
+        Bateau("USS Equinox", 2),
     ]
 
 def creer_grille_aleatoire(taille=10):
