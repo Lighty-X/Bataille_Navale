@@ -148,7 +148,7 @@ class BatailleNavaleApp:
                 self.fenetre.after(700, self.tour_ia)  # Il rejoue !
         elif res.startswith("coule"):
             nom_bat = res[6:]
-            b.config(bg=COULEURS["touche"], text="X")
+            b.config(bg=COULEURS["touche"], text="X")*
             self.label.config(text=f"L'ordi coule ton {nom_bat} ! Il rejoue !")
             self.ajouter_historique(f"L'ordi coule ton {nom_bat} ! Il rejoue !")
             self.afficher_bateau_coule(self.boutons_joueur, self.flotte_joueur, nom_bat)
