@@ -1,4 +1,4 @@
-MAJ 1.0 : Création du 1er code de base
+MAJ 1.0 : Création du 1er code de base \n
 MAJ 1.1 : Refonte du code de base avec des fonctions plus claires et recherches de fonctions permettant d'optimiser le fonctionnement
 MAJ 1.2 : Création de modèle de code que nous allons réutiliser pour améliorer le code existant (responsive / placement automatique et manuel)
 MAJ 1.3 : Création d'un dossier pour un code divisé en plusieurs fichiers, avec placement manuel et automatique, responsive et avec animation de base. La prochaine version sera encore plus complète avec un mode de jeu Humain VS Humain mais créée sur une nouvelle branche
