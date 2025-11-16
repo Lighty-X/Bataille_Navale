@@ -363,17 +363,21 @@ class BatailleNavaleHumainVSHumain:
             canvas.offset_y = offset_y
 
     def click_adverse(self, event):
-        adversaire = 1-self.tour
+        adversaire = 1 - self.tour
         canvas = self.canvases[adversaire]
         c = int((event.x - canvas.offset_x) // canvas.cell_size)
         l = int((event.y - canvas.offset_y) // canvas.cell_size)
         if not (0 <= l < self.taille and 0 <= c < self.taille):
             return
-        if self.grilles[adversaire][l][c] in (2,3):
+        if self.grilles[adversaire][l][c] in (2, 3):
             self.ajouter_historique("Déjà tenté ici !")
             return
         res = self.jouer_tir(self.grilles[adversaire], self.flottes[adversaire], l, c)
         self.redessiner_grilles()
+        # Vérifie si l'adversaire a perdu
+        if self.tous_coules(self.flottes[adversaire]):
+            self.fin_partie(self.tour)
+            return
         if res == "rate":
             self.label.config(text=f"Raté ! Au tour de {self.nom_joueurs[adversaire]}")
             self.ajouter_historique(f"Raté ! Passer à {self.nom_joueurs[adversaire]}")
@@ -381,15 +385,11 @@ class BatailleNavaleHumainVSHumain:
             self.set_bindings()
         elif res == "touche":
             self.label.config(text="Touché ! Rejouez !")
-            self.ajouter_historique(f"{self.nom_joueurs[self.tour]} a touché ({l+1},{c+1}) !")
-            if self.tous_coules(self.flottes[adversaire]):
-                self.fin_partie(self.tour)
+            self.ajouter_historique(f"{self.nom_joueurs[self.tour]} a touché ({l + 1},{c + 1}) !")
         elif res.startswith("coule"):
             nom_bat = res[6:]
             self.label.config(text=f"{nom_bat} coulé ! Rejouez !")
             self.ajouter_historique(f"{self.nom_joueurs[self.tour]} coule le {nom_bat} !")
-            if self.tous_coules(self.flottes[adversaire]):
-                self.fin_partie(self.tour)
 
     def jouer_tir(self, grille, flotte, l, c):
         if grille[l][c] == 1:
