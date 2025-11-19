@@ -6,6 +6,8 @@ MAJ 1.2 : Création de modèle de code que nous allons réutiliser pour amélior
 
 MAJ 1.3 : Création d'un dossier pour un code divisé en plusieurs fichiers, avec placement manuel et automatique, responsive et avec animation de base. La prochaine version sera encore plus complète avec un mode de jeu Humain VS Humain mais créée sur une nouvelle branche
 
+MAJ 1.4 : Nouvelle branche créée
+
 # Bataille Spatiale : **Nebula Strike**
 
 Ce projet contient nos efforts pour faire le meilleur jeu de bataille navale
