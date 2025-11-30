@@ -83,19 +83,35 @@ class BatailleNavaleApp:
         self.canvas_ia.pack(fill="both", expand=True)
         self.frame_ia.pack(side="right", fill="both", expand=True, padx=10)
 
-        # ---- Nouveau frame pour le bouton "Règles du jeu" ----
-        self.frame_regles = tk.Frame(root, bg=COULEURS["fond"])
-        self.frame_regles.pack(fill="x", pady=(5, 0))
+        # ---- Frame pour les boutons ----
+        self.frame_boutons = tk.Frame(root, bg=COULEURS["fond"])
+        self.frame_boutons.pack(fill="x", pady=(5, 0))
 
+        # Sous-frame centrée
+        self.frame_center = tk.Frame(self.frame_boutons, bg=COULEURS["fond"])
+        self.frame_center.pack()
+
+        # Bouton RÈGLES
         self.bouton_regles = tk.Button(
-            self.frame_regles,
+            self.frame_center,
             text="Règles du jeu",
             font=("Arial", 11, "bold"),
             command=self.afficher_regles,
             bg="#00344d",
             fg="white"
         )
-        self.bouton_regles.pack()
+        self.bouton_regles.pack(side="left", padx=10)
+
+        # Bouton QUITTER
+        self.bouton_quitter = tk.Button(
+            self.frame_center,
+            text="Quitter la partie",
+            font=("Arial", 11, "bold"),
+            command=self.quitter_partie,
+            bg="#802020",
+            fg="white"
+        )
+        self.bouton_quitter.pack(side="left", padx=10)
 
         # ---- Historique ----
         self.historique_frame = tk.Frame(root, bg=COULEURS["fond"])
@@ -124,6 +140,9 @@ class BatailleNavaleApp:
         )
         messagebox.showinfo("Règles du jeu", texte)
 
+    def quitter_partie(self):
+        if messagebox.askyesno("Quitter", "Voulez-vous vraiment quitter la partie ?"):
+            self.root.destroy()
 
     def redessiner_grilles(self, event=None):
         for canvas, grille, montrer_bateaux in [
