@@ -45,25 +45,36 @@ class BatailleNavaleApp:
                     for c in range(self.taille):
                         if self.grille_joueur[l][c] == 1:
                             positions.append((l, c))
-                self.flotte_joueur.append({"nom": nom, "taille": t, "positions": positions[idx * t:(idx+1)*t], "touchees": set()})
+                self.flotte_joueur.append({
+                    "nom": nom,
+                    "taille": t,
+                    "positions": positions[idx * t:(idx+1)*t],
+                    "touchees": set()
+                })
         else:
             self.grille_joueur, self.flotte_joueur = creer_grille_et_flotte(self.taille, NOMS_BATEAUX)
+
         self.grille_ia, self.flotte_ia = creer_grille_et_flotte(self.taille, NOMS_BATEAUX)
         self.tirs_ia_en_attente = []
 
-        # UI - Labels, frames, canvas...
+        # UI - Labels, frames, canvas...
         self.label = tk.Label(root, text="À toi de jouer !", font=("Arial", 16, "bold"),
                               fg=COULEURS["highlight"], bg=COULEURS["fond"])
         self.label.pack(pady=5)
+
         self.main_frame = tk.Frame(root, bg=COULEURS["fond"])
         self.main_frame.pack(fill="both", expand=True, padx=10, pady=(5, 0))
+
+        # ---- Frame du joueur ----
         self.frame_joueur = tk.Frame(self.main_frame, bg=COULEURS["fond"])
         self.label_joueur = tk.Label(self.frame_joueur, text=self.nom_joueur, font=("Arial", 14, "bold"),
-                                    fg=COULEURS["highlight"], bg=COULEURS["fond"])
+                                     fg=COULEURS["highlight"], bg=COULEURS["fond"])
         self.label_joueur.pack(pady=(0, 5))
         self.canvas_joueur = tk.Canvas(self.frame_joueur, bg=COULEURS["eau"], highlightthickness=0)
         self.canvas_joueur.pack(fill="both", expand=True)
         self.frame_joueur.pack(side="left", fill="both", expand=True, padx=10)
+
+        # ---- Frame de l'IA ----
         self.frame_ia = tk.Frame(self.main_frame, bg=COULEURS["fond"])
         self.label_ia = tk.Label(self.frame_ia, text=self.nom_ia, font=("Arial", 14, "bold"),
                                  fg=COULEURS["highlight"], bg=COULEURS["fond"])
@@ -71,6 +82,22 @@ class BatailleNavaleApp:
         self.canvas_ia = tk.Canvas(self.frame_ia, bg=COULEURS["eau"], highlightthickness=0)
         self.canvas_ia.pack(fill="both", expand=True)
         self.frame_ia.pack(side="right", fill="both", expand=True, padx=10)
+
+        # ---- Nouveau frame pour le bouton "Règles du jeu" ----
+        self.frame_regles = tk.Frame(root, bg=COULEURS["fond"])
+        self.frame_regles.pack(fill="x", pady=(5, 0))
+
+        self.bouton_regles = tk.Button(
+            self.frame_regles,
+            text="Règles du jeu",
+            font=("Arial", 11, "bold"),
+            command=self.afficher_regles,
+            bg="#00344d",
+            fg="white"
+        )
+        self.bouton_regles.pack()
+
+        # ---- Historique ----
         self.historique_frame = tk.Frame(root, bg=COULEURS["fond"])
         self.historique_frame.pack(fill="x", pady=(5, 10))
         self.historique_txt = tk.Text(self.historique_frame, width=80, height=6,
@@ -82,6 +109,21 @@ class BatailleNavaleApp:
         self.canvas_ia.bind("<Button-1>", self.click_ia)
         self.main_frame.bind("<Configure>", self.redessiner_grilles)
         self.ajouter_historique("Bienvenue dans la bataille navale ")
+
+    def afficher_regles(self):
+        texte = (
+            "Nebula Strike - Règles du jeu\n\n"
+            "- Deux joueurs s'affrontent dans une bataille spatiale.\n"
+            "- Chaque joueur possède 5 vaisseaux de tailles différentes.\n"
+            "- Les vaisseaux sont placés sur une grille 10 x 10.\n"
+            "- À tour de rôle, chaque joueur tire sur une case adverse.\n"
+            "- Si la case contient un vaisseau, il est touché, le joueur rejoue.\n"
+            "- Quand toutes les cases d’un vaisseau sont touchées, ce dernier est coulé.\n"
+            "- Le premier joueur qui détruit tous les vaisseaux adverses gagne.\n"
+            "- Attention aux astéroïdes !\n"
+        )
+        messagebox.showinfo("Règles du jeu", texte)
+
 
     def redessiner_grilles(self, event=None):
         for canvas, grille, montrer_bateaux in [
