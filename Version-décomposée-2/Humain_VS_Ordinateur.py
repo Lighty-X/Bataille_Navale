@@ -63,6 +63,15 @@ class BatailleNavaleHumainVSOrdinateur:
         self.canvas_ia = tk.Canvas(self.frame_ia, bg=COULEURS["eau"], highlightthickness=0)
         self.canvas_ia.pack(fill="both", expand=True)
         self.frame_ia.pack(side="right", fill="both", expand=True, padx=10)
+        # Listes synchronisées pour le redessin
+        self.canvases = [self.canvas_joueur, self.canvas_ia]
+        self.grilles = [self.grille_joueur, self.grille_ia]
+
+        # Affichage des bateaux (joueur = True, IA = False)
+        self.montrer_bateaux = [True, False]
+
+        # Premier dessin automatique dès que Tk a fini de dimensionner les canvases
+        self.root.after(0, self.redessiner_grilles)
 
         # ---- Frame pour les boutons ----
         self.frame_boutons = tk.Frame(root, bg=COULEURS["fond"])
@@ -126,54 +135,68 @@ class BatailleNavaleHumainVSOrdinateur:
             self.root.destroy()
 
     def redessiner_grilles(self, event=None):
-        for canvas, grille, montrer_bateaux in [
-            (self.canvas_joueur, self.grille_joueur, True),
-            (self.canvas_ia, self.grille_ia, False)
-        ]:
+        for idx in [0, 1]:
+            canvas = self.canvases[idx]
+            grille = self.grilles[idx]
+
             canvas.delete("all")
+
             w, h = canvas.winfo_width(), canvas.winfo_height()
             size = min(w, h)
             cell_size = size / self.taille
             offset_x = (w - size) / 2
             offset_y = (h - size) / 2
+
+            r_point = cell_size * 0.10  # rayon du point
+            r_square = cell_size * 0.23  # rayon des carrés arrondis
+
             for l in range(self.taille):
                 for c in range(self.taille):
                     x0 = offset_x + c * cell_size
                     y0 = offset_y + l * cell_size
-                    x1 = x0 + cell_size
-                    y1 = y0 + cell_size
+                    cx = x0 + cell_size / 2
+                    cy = y0 + cell_size / 2
                     val = grille[l][c]
+
+                    # --- Bateau touché (joueur ou IA) ---
+                    if val == 2:
+                        rectangle_arrondi(
+                            canvas, x0, y0, x0 + cell_size, y0 + cell_size,
+                            r=r_square,
+                            fill="#FF4444",  # rouge
+                            outline=COULEURS["grille"],
+                            width=1.2,
+                            contour_fond="white"
+                        )
+                        continue
+
+                    # --- Bateau intact visible (joueur seulement) ---
+                    if val == 1 and self.montrer_bateaux[idx]:
+                        rectangle_arrondi(
+                            canvas, x0, y0, x0 + cell_size, y0 + cell_size,
+                            r=r_square,
+                            fill="#D0D0D0",  # gris clair
+                            outline=COULEURS["grille"],
+                            width=1.2,
+                            contour_fond="white"
+                        )
+                        continue
+
+                    # --- Points pour eau ou raté ---
                     if val == 0:
-                        color = COULEURS["eau"]
-                        canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline="white", width=2)
-                    elif val == 1 and montrer_bateaux:
-                        color = COULEURS["bateau"]
-                        rectangle_arrondi(
-                            canvas, x0, y0, x1, y1,
-                            r=cell_size * 0.23,
-                            fill=color,
-                            outline=COULEURS["grille"],
-                            width=1.2,
-                            contour_fond="white"
-                        )
-                    elif val == 2:
-                        # Case touchée : dessiner le carré arrondi en couleur "touche"
-                        rectangle_arrondi(
-                            canvas, x0, y0, x1, y1,
-                            r=cell_size * 0.23,
-                            fill=COULEURS["touche"],
-                            outline=COULEURS["grille"],
-                            width=1.2,
-                            contour_fond="white"
-                        )
+                        color = "#5A8CBF"  # bleu doux
                     elif val == 3:
-                        # Case touchée à l'eau : croix rouge
-                        color = COULEURS["eau"]
-                        canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline="white", width=2)
-                        dessiner_croix(canvas, x0, y0, x1, y1, color="red", epaisseur=2)
+                        color = "#FFFFFF"  # blanc
                     else:
-                        color = COULEURS["eau"]
-                        canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline="white", width=2)
+                        color = "#5A8CBF"  # eau pour les bateaux ennemis non touchés
+
+                    canvas.create_oval(
+                        cx - r_point, cy - r_point,
+                        cx + r_point, cy + r_point,
+                        fill=color,
+                        outline=""
+                    )
+
             canvas.cell_size = cell_size
             canvas.offset_x = offset_x
             canvas.offset_y = offset_y

@@ -3,6 +3,8 @@ from tkinter import simpledialog, messagebox
 from utils import NOMS_BATEAUX, COULEURS
 import winsound
 from Fonction_Bataille import rectangle_arrondi
+import math
+import random
 
 
 class BatailleNavaleHumainVSHumain:
@@ -24,7 +26,8 @@ class BatailleNavaleHumainVSHumain:
                 cases_trouvees = 0
                 for l in range(self.taille):
                     for c in range(self.taille):
-                        if self.grilles[n][l][c] == 1 and (l, c) not in [pos for b in flotte for pos in b["positions"]]:
+                        if (self.grilles[n][l][c] == 1
+                                and (l, c) not in [pos for b in flotte for pos in b["positions"]]):
                             positions_bateau.append((l, c))
                             cases_trouvees += 1
                             if cases_trouvees == t:
@@ -35,15 +38,19 @@ class BatailleNavaleHumainVSHumain:
             self.flottes.append(flotte)
 
         self.tour = 0  # 0 = J1, 1 = J2
+        # Par défaut on ne montre pas les bateaux ; bouton permet d'afficher
         self.montrer_bateaux = [False, False]
 
         self.root.title("Bataille Navale Humain VS Humain")
         self.root.configure(bg=COULEURS["fond"])
 
-        self.label = tk.Label(root, text=f"A {self.nom_joueurs[self.tour]} de jouer !", font=("Arial", 16, "bold"),
+        # Label principal
+        self.label = tk.Label(root, text=f"À {self.nom_joueurs[self.tour]} de jouer !",
+                              font=("Arial", 16, "bold"),
                               fg=COULEURS["highlight"], bg=COULEURS["fond"])
         self.label.pack(pady=5)
 
+        # Cadre principal pour les deux grilles
         self.main_frame = tk.Frame(root, bg=COULEURS["fond"])
         self.main_frame.pack(fill="both", expand=True, padx=10, pady=(5, 0))
 
@@ -56,7 +63,8 @@ class BatailleNavaleHumainVSHumain:
             l = tk.Label(f, text=self.nom_joueurs[i], font=("Arial", 14, "bold"),
                          fg=COULEURS["highlight"], bg=COULEURS["fond"])
             l.pack(pady=(0, 5))
-            btn_voir = tk.Button(f, text="Voir mes bateaux", font=("Arial", 11), command=lambda ix=i: self.voir_bateaux(ix))
+            btn_voir = tk.Button(f, text="Voir mes bateaux", font=("Arial", 11),
+                                 command=lambda ix=i: self.voir_bateaux(ix))
             btn_voir.pack(pady=2)
             c = tk.Canvas(f, bg=COULEURS["eau"], highlightthickness=0)
             c.pack(fill="both", expand=True)
@@ -65,6 +73,8 @@ class BatailleNavaleHumainVSHumain:
             self.canvases.append(c)
             self.boutons_voir.append(btn_voir)
 
+        # Redessiner au démarrage et au redimensionnement
+        self.root.after(0, self.redessiner_grilles)
         self.main_frame.bind("<Configure>", self.redessiner_grilles)
 
         # Historique
@@ -78,10 +88,11 @@ class BatailleNavaleHumainVSHumain:
 
         self.ajouter_historique("Bienvenue dans la bataille navale HvH !")
 
-        # Initialiser le tour
+        # Initialiser les bindings pour le tour
         self.set_bindings()
 
     def set_bindings(self):
+        # Débind puis bind uniquement la grille de l'adversaire
         for i in [0, 1]:
             self.canvases[i].unbind("<Button-1>")
         adversaire = 1 - self.tour
@@ -94,50 +105,77 @@ class BatailleNavaleHumainVSHumain:
         self.redessiner_grilles()
 
     def redessiner_grilles(self, event=None):
+        # Dessin inspiré de l'implémentation animée (points + rectangles arrondis)
         for idx in [0, 1]:
             canvas, grille = self.canvases[idx], self.grilles[idx]
             canvas.delete("all")
+
             w, h = canvas.winfo_width(), canvas.winfo_height()
             size = min(w, h)
+            if size <= 0:
+                # Pas encore dimensionné
+                continue
             cell_size = size / self.taille
             offset_x = (w - size) / 2
             offset_y = (h - size) / 2
+
+            r_point = cell_size * 0.10  # rayon du point (petit rond)
+            r_square = cell_size * 0.23  # rayon des carrés arrondis (pour rectangles)
+
             for l in range(self.taille):
                 for c in range(self.taille):
                     x0 = offset_x + c * cell_size
                     y0 = offset_y + l * cell_size
-                    x1 = x0 + cell_size
-                    y1 = y0 + cell_size
+                    cx = x0 + cell_size / 2
+                    cy = y0 + cell_size / 2
                     val = grille[l][c]
-                    if val == 0:
-                        color = COULEURS["eau"]
-                    elif val == 1 and self.montrer_bateaux[idx]:
-                        color = COULEURS["bateau"]
+
+                    # --- Draw water point FIRST (always present under any overlay) ---
+                    # utilise une couleur visible distincte du fond pour éviter invisibilité
+                    canvas.create_oval(
+                        cx - r_point, cy - r_point,
+                        cx + r_point, cy + r_point,
+                        fill=COULEURS.get("eau_point", "#6FA8DC"),
+                        outline=""
+                    )
+
+                    # --- Bateau touché (joueur ou adversaire) ---
+                    if val == 2:
                         rectangle_arrondi(
-                            canvas, x0, y0, x1, y1,
-                            r=cell_size * 0.23,
-                            fill=color,
-                            outline=COULEURS["grille"],
+                            canvas, x0, y0, x0 + cell_size, y0 + cell_size,
+                            r=r_square,
+                            fill=COULEURS.get("touche", "#FF4444"),
+                            outline=COULEURS.get("grille", "#123456"),
                             width=1.2,
                             contour_fond="white"
                         )
                         continue
-                    elif val == 2:
-                        # Case touchée : carré arrondi en couleur "touche"
+
+                    # --- Bateau intact visible (montrer bateaux pour ce joueur) ---
+                    if val == 1 and self.montrer_bateaux[idx]:
                         rectangle_arrondi(
-                            canvas, x0, y0, x1, y1,
-                            r=cell_size * 0.23,
-                            fill=COULEURS["touche"],
-                            outline=COULEURS["grille"],
+                            canvas, x0, y0, x0 + cell_size, y0 + cell_size,
+                            r=r_square,
+                            fill=COULEURS.get("bateau", "#D0D0D0"),
+                            outline=COULEURS.get("grille", "#123456"),
                             width=1.2,
                             contour_fond="white"
                         )
                         continue
-                    elif val == 3:
-                        color = COULEURS["rate"]
-                    else:
-                        color = COULEURS["eau"]
-                    canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline=COULEURS["grille"], width=1.2)
+
+                    # --- Raté : dessiné par-dessus le point pour bien le marquer ---
+                    if val == 3:
+                        canvas.create_oval(
+                            cx - r_point, cy - r_point,
+                            cx + r_point, cy + r_point,
+                            fill=COULEURS.get("rate", "#FF4444"),
+                            outline=""
+                        )
+                        continue
+
+                    # Sinon (eau non jouée) : point déjà dessiné ci-dessus
+
+            # Sauvegarde des métriques pour les clics
             canvas.cell_size = cell_size
             canvas.offset_x = offset_x
             canvas.offset_y = offset_y
@@ -145,6 +183,7 @@ class BatailleNavaleHumainVSHumain:
     def click_adverse(self, event):
         adversaire = 1 - self.tour
         canvas = self.canvases[adversaire]
+        # calculer indices case
         c = int((event.x - canvas.offset_x) // canvas.cell_size)
         l = int((event.y - canvas.offset_y) // canvas.cell_size)
         if not (0 <= l < self.taille and 0 <= c < self.taille):
@@ -153,26 +192,48 @@ class BatailleNavaleHumainVSHumain:
             self.ajouter_historique("Déjà tenté ici !")
             return
 
+        # jouer le tir
         res = self.jouer_tir(self.grilles[adversaire], self.flottes[adversaire], l, c)
+        # animation d'impact visuelle simple
+        x = canvas.offset_x + c * canvas.cell_size + canvas.cell_size / 2
+        y = canvas.offset_y + l * canvas.cell_size + canvas.cell_size / 2
+        if res == "rate":
+            try:
+                winsound.PlaySound("Rate.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
+            except Exception:
+                pass
+            self.animation_eclaboussure(canvas, x, y)
+        elif res == "touche":
+            try:
+                winsound.PlaySound("Touche.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
+            except Exception:
+                pass
+            self.animation_explosion(canvas, x, y)
+        elif res.startswith("coule"):
+            try:
+                winsound.PlaySound("Coule.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
+            except Exception:
+                pass
+            self.animation_explosion(canvas, x, y, grand=True)
+
         self.redessiner_grilles()
 
+        # Vérifier fin de partie
         if self.tous_coules(self.flottes[adversaire]):
             self.fin_partie(self.tour)
             return
 
+        # Gestion des tours selon résultat
         if res == "rate":
-            winsound.PlaySound("Rate.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.label.config(text=f"Raté ! Au tour de {self.nom_joueurs[adversaire]}")
-            self.ajouter_historique(f"Raté ! Passer à {self.nom_joueurs[adversaire]}")
+            self.ajouter_historique(f"{self.nom_joueurs[self.tour]} rate ({l+1},{c+1}) - à {self.nom_joueurs[adversaire]}")
             self.tour = adversaire
             self.set_bindings()
         elif res == "touche":
-            winsound.PlaySound("Touche.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.label.config(text="Touché ! Rejouez !")
-            self.ajouter_historique(f"{self.nom_joueurs[self.tour]} a touché ({l + 1},{c + 1}) !")
+            self.ajouter_historique(f"{self.nom_joueurs[self.tour]} a touché ({l+1},{c+1}) !")
         elif res.startswith("coule"):
             nom_bat = res[6:]
-            winsound.PlaySound("Coule.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.label.config(text=f"{nom_bat} coulé ! Rejouez !")
             self.ajouter_historique(f"{self.nom_joueurs[self.tour]} coule le {nom_bat} !")
 
@@ -180,9 +241,10 @@ class BatailleNavaleHumainVSHumain:
         if grille[l][c] == 1:
             grille[l][c] = 2
             b = self.trouver_bateau(flotte, l, c)
-            b["touchees"].add((l, c))
-            if set(b["positions"]) == b["touchees"]:
-                return f"coule {b['nom']}"
+            if b is not None:
+                b["touchees"].add((l, c))
+                if set(b["positions"]) == b["touchees"]:
+                    return f"coule {b['nom']}"
             return "touche"
         else:
             grille[l][c] = 3
@@ -209,3 +271,57 @@ class BatailleNavaleHumainVSHumain:
         msg = f"Victoire de {self.nom_joueurs[gagnant]} !"
         messagebox.showinfo("Fin de partie", msg)
         self.root.destroy()
+
+    # ---- Animations (inspirées du mode IA) ----
+    def animation_eclaboussure(self, canvas, x, y):
+        rayon = max(3, canvas.cell_size * 0.08)
+        cercle = canvas.create_oval(x-rayon, y-rayon, x+rayon, y+rayon,
+                                    outline=COULEURS.get("rate", "#FFFFFF"), width=2)
+        def etape(i=0):
+            if i > 10:
+                canvas.delete(cercle)
+                return
+            r = rayon + i * (canvas.cell_size * 0.02)
+            alpha = max(0, 1 - i/10)
+            # on fabrique une teinte plus pâle via interpolation simple (approx)
+            base = (144, 224, 239)
+            color = '#' + ''.join(f"{int(comp*alpha):02x}" for comp in base)
+            canvas.coords(cercle, x-r, y-r, x+r, y+r)
+            try:
+                canvas.itemconfig(cercle, outline=color)
+            except Exception:
+                pass
+            canvas.after(40, lambda: etape(i+1))
+        etape()
+
+    def animation_explosion(self, canvas, x, y, grand=False):
+        nb = 12 if grand else 8
+        lignes = []
+        for i in range(nb):
+            lignes.append(canvas.create_line(x, y, x, y,
+                                             fill=COULEURS.get("touche", "#FF4444"), width=2))
+        def etape(i=0):
+            if i > 10:
+                for l in lignes:
+                    try:
+                        canvas.delete(l)
+                    except Exception:
+                        pass
+                return
+            for idx_l, l in enumerate(lignes):
+                angle = 2*math.pi*idx_l/nb
+                long = (i*4) * (2 if grand else 1)
+                canvas.coords(l, x, y, x + math.cos(angle)*long, y + math.sin(angle)*long)
+            canvas.after(40, lambda: etape(i+1))
+        etape()
+
+    def voisins(self, l, c):
+        return [(l+1, c), (l-1, c), (l, c+1), (l, c-1)]
+
+
+# Example usage:
+# if __name__ == "__main__":
+#     root = tk.Tk()
+#     # grille1 and grille2 must be 10x10 matrices with values: 0 (eau), 1 (bateau), ...
+#     app = BatailleNavaleHumainVSHumain(root, grille1, grille2)
+#     root.mainloop()
