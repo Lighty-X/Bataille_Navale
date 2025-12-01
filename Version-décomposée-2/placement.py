@@ -2,10 +2,6 @@ import tkinter as tk
 from utils import NOMS_BATEAUX, COULEURS, creer_grille
 
 def rectangle_arrondi(canvas, x0, y0, x1, y1, r, fill, outline, width=1.2, contour_fond=None):
-    """
-    Dessine un rectangle arrondi sur le canvas.
-    contour_fond : couleur utilisée pour le "contour de fond" afin de garder la continuité des lignes de la grille.
-    """
     if contour_fond is None:
         contour_fond = canvas["bg"]
 

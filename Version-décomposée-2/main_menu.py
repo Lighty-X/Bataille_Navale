@@ -1,6 +1,7 @@
 import tkinter as tk
 import winsound
-from bataille import BatailleNavaleApp, BatailleNavaleHumainVSHumain
+from Humain_VS_Humain import BatailleNavaleHumainVSHumain
+from Humain_VS_Ordinateur import BatailleNavaleHumainVSOrdinateur
 from placement import PlacementManuel
 from utils import creer_grille, placer_bateau_aleatoire, NOMS_BATEAUX
 
@@ -56,7 +57,7 @@ class MenuPrincipal:
 
     def setup_joueur_vs_machine(self):
         def apres_placement(grille):
-            BatailleNavaleApp(self.root, grille_joueur=grille)
+            BatailleNavaleHumainVSOrdinateur(self.root, grille_joueur=grille)
         if self.place1.get() == "manuel":
             PlacementManuel(self.root, callback=apres_placement)
         else:
@@ -64,7 +65,7 @@ class MenuPrincipal:
             grille = creer_grille(taille)
             for nom, t in NOMS_BATEAUX:
                 placer_bateau_aleatoire(grille, t)
-            BatailleNavaleApp(self.root, grille_joueur=grille)
+            BatailleNavaleHumainVSOrdinateur(self.root, grille_joueur=grille)
 
     def setup_joueur_vs_joueur(self):
         self.grilles = [None, None]

@@ -10,7 +10,7 @@ NOMS_BATEAUX = [
 
 COULEURS = {
     "fond": "#001428",
-    "eau": "#023e8a",
+    "eau": "#001428",
     "bateau": "#0077b6",
     "touche": "#ef233c",
     "rate": "#90e0ef",
