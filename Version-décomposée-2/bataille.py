@@ -324,18 +324,26 @@ class BatailleNavaleHumainVSHumain:
         ]
         self.grilles = [grille1, grille2]
         self.flottes = []
-        for n in (0,1):
+
+        # Créer les flottes avec positions correctes par bateau
+        for n in (0, 1):
             flotte = []
-            for idx, (nom, t) in enumerate(NOMS_BATEAUX):
-                positions = []
+            for nom, t in NOMS_BATEAUX:
+                positions_bateau = []
+                cases_trouvees = 0
                 for l in range(self.taille):
                     for c in range(self.taille):
-                        if self.grilles[n][l][c] == 1:
-                            positions.append((l, c))
-                flotte.append({"nom": nom, "taille": t, "positions": positions[idx * t:(idx+1)*t], "touchees": set()})
+                        if self.grilles[n][l][c] == 1 and (l, c) not in [pos for b in flotte for pos in b["positions"]]:
+                            positions_bateau.append((l, c))
+                            cases_trouvees += 1
+                            if cases_trouvees == t:
+                                break
+                    if cases_trouvees == t:
+                        break
+                flotte.append({"nom": nom, "taille": t, "positions": positions_bateau, "touchees": set()})
             self.flottes.append(flotte)
 
-        self.tour = 0 # 0 = J1, 1 = J2
+        self.tour = 0  # 0 = J1, 1 = J2
         self.montrer_bateaux = [False, False]
 
         self.root.title("Bataille Navale Humain VS Humain")
@@ -344,6 +352,7 @@ class BatailleNavaleHumainVSHumain:
         self.label = tk.Label(root, text=f"A {self.nom_joueurs[self.tour]} de jouer !", font=("Arial", 16, "bold"),
                               fg=COULEURS["highlight"], bg=COULEURS["fond"])
         self.label.pack(pady=5)
+
         self.main_frame = tk.Frame(root, bg=COULEURS["fond"])
         self.main_frame.pack(fill="both", expand=True, padx=10, pady=(5, 0))
 
@@ -351,21 +360,23 @@ class BatailleNavaleHumainVSHumain:
         self.canvases = []
         self.boutons_voir = []
 
-        for i in [0,1]:
+        for i in [0, 1]:
             f = tk.Frame(self.main_frame, bg=COULEURS["fond"])
             l = tk.Label(f, text=self.nom_joueurs[i], font=("Arial", 14, "bold"),
-                        fg=COULEURS["highlight"], bg=COULEURS["fond"])
+                         fg=COULEURS["highlight"], bg=COULEURS["fond"])
             l.pack(pady=(0, 5))
-            btn_voir = tk.Button(f, text="Voir mes bateaux", font=("Arial",11), command=lambda ix=i: self.voir_bateaux(ix))
+            btn_voir = tk.Button(f, text="Voir mes bateaux", font=("Arial", 11), command=lambda ix=i: self.voir_bateaux(ix))
             btn_voir.pack(pady=2)
             c = tk.Canvas(f, bg=COULEURS["eau"], highlightthickness=0)
             c.pack(fill="both", expand=True)
-            f.pack(side="left" if i==0 else "right", fill="both", expand=True, padx=10)
+            f.pack(side="left" if i == 0 else "right", fill="both", expand=True, padx=10)
             self.frames.append(f)
             self.canvases.append(c)
             self.boutons_voir.append(btn_voir)
-        # On *n'ajoute* le binding qu'à l'adversaire, puis on change dynamiquement à chaque tour
+
         self.main_frame.bind("<Configure>", self.redessiner_grilles)
+
+        # Historique
         self.historique_frame = tk.Frame(root, bg=COULEURS["fond"])
         self.historique_frame.pack(fill="x", pady=(5, 10))
         self.historique_txt = tk.Text(self.historique_frame, width=80, height=6,
@@ -380,7 +391,6 @@ class BatailleNavaleHumainVSHumain:
         self.set_bindings()
 
     def set_bindings(self):
-        # Au début ou après chaque tir, on retire tous les bindings puis on n'ajoute que sur le canvas de l'adversaire du tour en cours
         for i in [0, 1]:
             self.canvases[i].unbind("<Button-1>")
         adversaire = 1 - self.tour
@@ -393,7 +403,7 @@ class BatailleNavaleHumainVSHumain:
         self.redessiner_grilles()
 
     def redessiner_grilles(self, event=None):
-        for idx in [0,1]:
+        for idx in [0, 1]:
             canvas, grille = self.canvases[idx], self.grilles[idx]
             canvas.delete("all")
             w, h = canvas.winfo_width(), canvas.winfo_height()
@@ -433,12 +443,14 @@ class BatailleNavaleHumainVSHumain:
         if self.grilles[adversaire][l][c] in (2, 3):
             self.ajouter_historique("Déjà tenté ici !")
             return
+
         res = self.jouer_tir(self.grilles[adversaire], self.flottes[adversaire], l, c)
         self.redessiner_grilles()
-        # Vérifie si l'adversaire a perdu
+
         if self.tous_coules(self.flottes[adversaire]):
             self.fin_partie(self.tour)
             return
+
         if res == "rate":
             self.label.config(text=f"Raté ! Au tour de {self.nom_joueurs[adversaire]}")
             self.ajouter_historique(f"Raté ! Passer à {self.nom_joueurs[adversaire]}")

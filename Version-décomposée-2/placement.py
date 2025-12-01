@@ -32,18 +32,24 @@ class PlacementManuel:
                                      command=self.valider)
         self.btn_valider.pack(pady=15)
         self.btn_valider.config(state="disabled")
-
+        self.root.after(100, self.redessiner)
+        self.root.update_idletasks()
         self.redessiner()
 
     def redessiner(self, event=None):
         self.canvas.delete("all")
         w, h = self.canvas.winfo_width(), self.canvas.winfo_height()
+
+        # Si le canvas n'est pas encore dimensionné, on attend
+        if w < 5 or h < 5:
+            return
+
         cell = min(w, h) / self.taille
         self.cell_size = cell
         for l in range(self.taille):
             for c in range(self.taille):
                 color = COULEURS["bateau"] if self.grille[l][c] == 1 else COULEURS["eau"]
-                self.canvas.create_rectangle(c*cell, l*cell, (c+1)*cell, (l+1)*cell,
+                self.canvas.create_rectangle(c * cell, l * cell, (c + 1) * cell, (l + 1) * cell,
                                              fill=color, outline=COULEURS["grille"])
         if self.index_bateau < len(self.bateaux):
             nom, t = self.bateaux[self.index_bateau]
