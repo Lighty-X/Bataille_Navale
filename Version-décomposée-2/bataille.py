@@ -2,8 +2,52 @@ import tkinter as tk
 import random, math
 from tkinter import simpledialog, messagebox
 from utils import NOMS_BATEAUX, COULEURS, creer_grille, placer_bateau_aleatoire
-
 import winsound
+
+def rectangle_arrondi(canvas, x0, y0, x1, y1, r, fill, outline, width=1.2, contour_fond=None):
+    """
+    Dessine un rectangle arrondi sur le canvas.
+    contour_fond : couleur utilisée pour le "contour de fond" afin de garder la continuité des lignes de la grille.
+    """
+    if contour_fond is None:
+        contour_fond = canvas["bg"]
+
+    # --- Contour de fond (pour continuité des lignes) ---
+    canvas.create_rectangle(x0 + r, y0, x1 - r, y1, fill='', outline=contour_fond, width=width+1.5)
+    canvas.create_rectangle(x0, y0 + r, x1, y1 - r, fill='', outline=contour_fond, width=width+1.5)
+    canvas.create_arc(x0, y0, x0 + 2 * r, y0 + 2 * r, start=90, extent=90, style='arc',
+                      outline=contour_fond, width=width+1.5)
+    canvas.create_arc(x1 - 2 * r, y0, x1, y0 + 2 * r, start=0, extent=90, style='arc',
+                      outline=contour_fond, width=width+1.5)
+    canvas.create_arc(x0, y1 - 2 * r, x0 + 2 * r, y1, start=180, extent=90, style='arc',
+                      outline=contour_fond, width=width+1.5)
+    canvas.create_arc(x1 - 2 * r, y1 - 2 * r, x1, y1, start=270, extent=90, style='arc',
+                      outline=contour_fond, width=width+1.5)
+
+    # --- Remplissage central ---
+    canvas.create_rectangle(x0 + r, y0, x1 - r, y1, fill=fill, outline='', width=0)
+    canvas.create_rectangle(x0, y0 + r, x1, y1 - r, fill=fill, outline='', width=0)
+    canvas.create_oval(x0, y0, x0 + 2 * r, y0 + 2 * r, fill=fill, outline='', width=0)
+    canvas.create_oval(x1 - 2 * r, y0, x1, y0 + 2 * r, fill=fill, outline='', width=0)
+    canvas.create_oval(x0, y1 - 2 * r, x0 + 2 * r, y1, fill=fill, outline='', width=0)
+    canvas.create_oval(x1 - 2 * r, y1 - 2 * r, x1, y1, fill=fill, outline='', width=0)
+
+    # --- Contour visible ---
+    canvas.create_line(x0 + r, y0, x1 - r, y0, fill=outline, width=width)
+    canvas.create_line(x1, y0 + r, x1, y1 - r, fill=outline, width=width)
+    canvas.create_line(x0 + r, y1, x1 - r, y1, fill=outline, width=width)
+    canvas.create_line(x0, y0 + r, x0, y1 - r, fill=outline, width=width)
+    canvas.create_arc(x0, y0, x0 + 2 * r, y0 + 2 * r, start=90, extent=90, style='arc', outline=outline, width=width)
+    canvas.create_arc(x1 - 2 * r, y0, x1, y0 + 2 * r, start=0, extent=90, style='arc', outline=outline, width=width)
+    canvas.create_arc(x0, y1 - 2 * r, x0 + 2 * r, y1, start=180, extent=90, style='arc', outline=outline, width=width)
+    canvas.create_arc(x1 - 2 * r, y1 - 2 * r, x1, y1, start=270, extent=90, style='arc', outline=outline, width=width)
+
+
+def dessiner_croix(canvas, x0, y0, x1, y1, color="red", epaisseur=2):
+    # Petite croix (~50% de la case)
+    marge = (x1 - x0) * 0.25
+    canvas.create_line(x0 + marge, y0 + marge, x1 - marge, y1 - marge, fill=color, width=epaisseur)
+    canvas.create_line(x0 + marge, y1 - marge, x1 - marge, y0 + marge, fill=color, width=epaisseur)
 
 
 def placer_bateau(grille, taille):
@@ -167,15 +211,35 @@ class BatailleNavaleApp:
                     val = grille[l][c]
                     if val == 0:
                         color = COULEURS["eau"]
+                        canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline="white", width=2)
                     elif val == 1 and montrer_bateaux:
                         color = COULEURS["bateau"]
+                        rectangle_arrondi(
+                            canvas, x0, y0, x1, y1,
+                            r=cell_size * 0.23,
+                            fill=color,
+                            outline=COULEURS["grille"],
+                            width=1.2,
+                            contour_fond="white"
+                        )
                     elif val == 2:
-                        color = COULEURS["touche"]
+                        # Case touchée : dessiner le carré arrondi en couleur "touche"
+                        rectangle_arrondi(
+                            canvas, x0, y0, x1, y1,
+                            r=cell_size * 0.23,
+                            fill=COULEURS["touche"],
+                            outline=COULEURS["grille"],
+                            width=1.2,
+                            contour_fond="white"
+                        )
                     elif val == 3:
-                        color = COULEURS["rate"]
+                        # Case touchée à l'eau : croix rouge
+                        color = COULEURS["eau"]
+                        canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline="white", width=2)
+                        dessiner_croix(canvas, x0, y0, x1, y1, color="red", epaisseur=2)
                     else:
                         color = COULEURS["eau"]
-                    canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline=COULEURS["grille"], width=1.2)
+                        canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline="white", width=2)
             canvas.cell_size = cell_size
             canvas.offset_x = offset_x
             canvas.offset_y = offset_y
@@ -430,8 +494,26 @@ class BatailleNavaleHumainVSHumain:
                         color = COULEURS["eau"]
                     elif val == 1 and self.montrer_bateaux[idx]:
                         color = COULEURS["bateau"]
+                        rectangle_arrondi(
+                            canvas, x0, y0, x1, y1,
+                            r=cell_size * 0.23,
+                            fill=color,
+                            outline=COULEURS["grille"],
+                            width=1.2,
+                            contour_fond="white"
+                        )
+                        continue
                     elif val == 2:
-                        color = COULEURS["touche"]
+                        # Case touchée : carré arrondi en couleur "touche"
+                        rectangle_arrondi(
+                            canvas, x0, y0, x1, y1,
+                            r=cell_size * 0.23,
+                            fill=COULEURS["touche"],
+                            outline=COULEURS["grille"],
+                            width=1.2,
+                            contour_fond="white"
+                        )
+                        continue
                     elif val == 3:
                         color = COULEURS["rate"]
                     else:

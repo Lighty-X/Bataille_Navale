@@ -1,6 +1,45 @@
 import tkinter as tk
 from utils import NOMS_BATEAUX, COULEURS, creer_grille
 
+def rectangle_arrondi(canvas, x0, y0, x1, y1, r, fill, outline, width=1.2, contour_fond=None):
+    """
+    Dessine un rectangle arrondi sur le canvas.
+    contour_fond : couleur utilisée pour le "contour de fond" afin de garder la continuité des lignes de la grille.
+    """
+    if contour_fond is None:
+        contour_fond = canvas["bg"]
+
+    # --- Contour de fond (pour continuité des lignes) ---
+    canvas.create_rectangle(x0 + r, y0, x1 - r, y1, fill='', outline=contour_fond, width=width+1.5)
+    canvas.create_rectangle(x0, y0 + r, x1, y1 - r, fill='', outline=contour_fond, width=width+1.5)
+    canvas.create_arc(x0, y0, x0 + 2 * r, y0 + 2 * r, start=90, extent=90, style='arc',
+                      outline=contour_fond, width=width+1.5)
+    canvas.create_arc(x1 - 2 * r, y0, x1, y0 + 2 * r, start=0, extent=90, style='arc',
+                      outline=contour_fond, width=width+1.5)
+    canvas.create_arc(x0, y1 - 2 * r, x0 + 2 * r, y1, start=180, extent=90, style='arc',
+                      outline=contour_fond, width=width+1.5)
+    canvas.create_arc(x1 - 2 * r, y1 - 2 * r, x1, y1, start=270, extent=90, style='arc',
+                      outline=contour_fond, width=width+1.5)
+
+    # --- Remplissage central ---
+    canvas.create_rectangle(x0 + r, y0, x1 - r, y1, fill=fill, outline='', width=0)
+    canvas.create_rectangle(x0, y0 + r, x1, y1 - r, fill=fill, outline='', width=0)
+    canvas.create_oval(x0, y0, x0 + 2 * r, y0 + 2 * r, fill=fill, outline='', width=0)
+    canvas.create_oval(x1 - 2 * r, y0, x1, y0 + 2 * r, fill=fill, outline='', width=0)
+    canvas.create_oval(x0, y1 - 2 * r, x0 + 2 * r, y1, fill=fill, outline='', width=0)
+    canvas.create_oval(x1 - 2 * r, y1 - 2 * r, x1, y1, fill=fill, outline='', width=0)
+
+    # --- Contour visible ---
+    canvas.create_line(x0 + r, y0, x1 - r, y0, fill=outline, width=width)
+    canvas.create_line(x1, y0 + r, x1, y1 - r, fill=outline, width=width)
+    canvas.create_line(x0 + r, y1, x1 - r, y1, fill=outline, width=width)
+    canvas.create_line(x0, y0 + r, x0, y1 - r, fill=outline, width=width)
+    canvas.create_arc(x0, y0, x0 + 2 * r, y0 + 2 * r, start=90, extent=90, style='arc', outline=outline, width=width)
+    canvas.create_arc(x1 - 2 * r, y0, x1, y0 + 2 * r, start=0, extent=90, style='arc', outline=outline, width=width)
+    canvas.create_arc(x0, y1 - 2 * r, x0 + 2 * r, y1, start=180, extent=90, style='arc', outline=outline, width=width)
+    canvas.create_arc(x1 - 2 * r, y1 - 2 * r, x1, y1, start=270, extent=90, style='arc', outline=outline, width=width)
+
+
 class PlacementManuel:
     def __init__(self, root, callback):
         self.root = root
@@ -46,11 +85,41 @@ class PlacementManuel:
 
         cell = min(w, h) / self.taille
         self.cell_size = cell
+
+        # Dessiner les cases (fond eau + lignes)
         for l in range(self.taille):
             for c in range(self.taille):
-                color = COULEURS["bateau"] if self.grille[l][c] == 1 else COULEURS["eau"]
-                self.canvas.create_rectangle(c * cell, l * cell, (c + 1) * cell, (l + 1) * cell,
-                                             fill=color, outline=COULEURS["grille"])
+                x0 = c * cell
+                y0 = l * cell
+                x1 = (c + 1) * cell
+                y1 = (l + 1) * cell
+                # fond eau
+                self.canvas.create_rectangle(x0, y0, x1, y1,
+                                             fill=COULEURS["eau"], outline=COULEURS["grille"])
+
+        # Dessiner les bateaux placés sous forme de rectangles arrondis
+        for b in self.bateaux_places:
+            positions = b["positions"]
+            # calculer bounding box (les bateaux sont en ligne, donc bbox est simple)
+            rows = [p[0] for p in positions]
+            cols = [p[1] for p in positions]
+            min_r, max_r = min(rows), max(rows)
+            min_c, max_c = min(cols), max(cols)
+            x0 = min_c * cell
+            y0 = min_r * cell
+            x1 = (max_c + 1) * cell
+            y1 = (max_r + 1) * cell
+            # rayon arrondi proportionnel à la taille d'une case
+            r = cell * 0.20
+            # dessiner rectangle arrondi (couleur bateau)
+            rectangle_arrondi(self.canvas, x0, y0, x1, y1,
+                              r=r,
+                              fill=COULEURS["bateau"],
+                              outline=COULEURS["grille"],
+                              width=1.2,
+                              contour_fond=COULEURS["eau"])
+
+        # Si le bateau courant est en train d'être placé, afficher une prévisualisation (optionnel)
         if self.index_bateau < len(self.bateaux):
             nom, t = self.bateaux[self.index_bateau]
             self.label.config(text=f"Placez : {nom} ({t} cases) - {'Vertical' if self.vertical else 'Horizontal'}")
@@ -62,9 +131,12 @@ class PlacementManuel:
         self.redessiner()
 
     def placer_ou_supprimer(self, event):
+        # calculer uniquement si cell_size déjà initialisée
+        if not hasattr(self, "cell_size") or self.cell_size == 0:
+            return
         c = int(event.x // self.cell_size)
         l = int(event.y // self.cell_size)
-        # Maj + clic gauche = suppression
+        # Maj + clic gauche = suppression (Shift)
         if event.state & 0x0001:
             self.supprimer_bateau(l, c)
             return
@@ -87,7 +159,7 @@ class PlacementManuel:
         self.index_bateau += 1
         self.redessiner()
         if self.index_bateau == len(self.bateaux):
-            self.label.config(text=" Tous les bateaux sont placés !")
+            self.label.config(text="Tous les bateaux sont placés !")
             self.btn_valider.config(state="normal")
 
     def supprimer_bateau(self, l, c):
@@ -96,8 +168,9 @@ class PlacementManuel:
                 for (x, y) in b["positions"]:
                     self.grille[x][y] = 0
                 self.bateaux_places.remove(b)
-                self.index_bateau = min(self.index_bateau, len(self.bateaux_places))
-                self.label.config(text=f" {b['nom']} supprimé. Replacez-le.")
+                # recalculer index_bateau pour permettre replacer à la position correcte
+                self.index_bateau = len(self.bateaux_places)
+                self.label.config(text=f"{b['nom']} supprimé. Replacez-le.")
                 self.btn_valider.config(state="disabled")
                 self.redessiner()
                 return
