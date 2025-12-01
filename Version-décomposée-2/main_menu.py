@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import simpledialog
+import winsound
 from bataille import BatailleNavaleApp, BatailleNavaleHumainVSHumain
 from placement import PlacementManuel
 from utils import creer_grille, placer_bateau_aleatoire, NOMS_BATEAUX
@@ -48,8 +48,10 @@ class MenuPrincipal:
     def start_game(self):
         self.frame.destroy()
         if self.mode.get() == "HvM":
+            winsound.PlaySound("Debut.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.setup_joueur_vs_machine()
         else:
+            winsound.PlaySound("Debut.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.setup_joueur_vs_joueur()
 
     def setup_joueur_vs_machine(self):

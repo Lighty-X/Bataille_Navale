@@ -3,6 +3,9 @@ import random, math
 from tkinter import simpledialog, messagebox
 from utils import NOMS_BATEAUX, COULEURS, creer_grille, placer_bateau_aleatoire
 
+import winsound
+
+
 def placer_bateau(grille, taille):
     return placer_bateau_aleatoire(grille, taille)
 
@@ -192,11 +195,13 @@ class BatailleNavaleApp:
         x = self.canvas_ia.offset_x + c * self.canvas_ia.cell_size + self.canvas_ia.cell_size / 2
         y = self.canvas_ia.offset_y + l * self.canvas_ia.cell_size + self.canvas_ia.cell_size / 2
         if res == "rate":
+            winsound.PlaySound("Rate.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_eclaboussure(self.canvas_ia, x, y)
             self.label.config(text="Raté ")
             self.ajouter_historique("Tu rates la case...")
             self.root.after(900, self.tour_ia)
         elif res == "touche":
+            winsound.PlaySound("Touche.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_explosion(self.canvas_ia, x, y)
             self.label.config(text="Touché ! Rejoue !")
             self.ajouter_historique("Touché ! Rejoue !")
@@ -205,6 +210,7 @@ class BatailleNavaleApp:
         elif res.startswith("coule"):
             self.animation_explosion(self.canvas_ia, x, y, grand=True)
             nom_bat = res[6:]
+            winsound.PlaySound("Coule.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.label.config(text=f"{nom_bat} coulé ! Rejoue !")
             self.ajouter_historique(f"Tu coules le {nom_bat} !")
             if tous_coules(self.flotte_ia):
@@ -224,10 +230,12 @@ class BatailleNavaleApp:
         x = self.canvas_joueur.offset_x + c * self.canvas_joueur.cell_size + self.canvas_joueur.cell_size / 2
         y = self.canvas_joueur.offset_y + l * self.canvas_joueur.cell_size + self.canvas_joueur.cell_size / 2
         if res == "rate":
+            winsound.PlaySound("Rate.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_eclaboussure(self.canvas_joueur, x, y)
             self.label.config(text="L'ordi rate. À toi !")
             self.ajouter_historique("L'ordi rate.")
         elif res == "touche":
+            winsound.PlaySound("Touche.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_explosion(self.canvas_joueur, x, y)
             self.label.config(text="L'ordi touche ! Il rejoue !")
             self.ajouter_historique(f"L'ordi touche ({l+1},{c+1}) ! Il rejoue !")
@@ -452,15 +460,18 @@ class BatailleNavaleHumainVSHumain:
             return
 
         if res == "rate":
+            winsound.PlaySound("Rate.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.label.config(text=f"Raté ! Au tour de {self.nom_joueurs[adversaire]}")
             self.ajouter_historique(f"Raté ! Passer à {self.nom_joueurs[adversaire]}")
             self.tour = adversaire
             self.set_bindings()
         elif res == "touche":
+            winsound.PlaySound("Touche.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.label.config(text="Touché ! Rejouez !")
             self.ajouter_historique(f"{self.nom_joueurs[self.tour]} a touché ({l + 1},{c + 1}) !")
         elif res.startswith("coule"):
             nom_bat = res[6:]
+            winsound.PlaySound("Coule.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.label.config(text=f"{nom_bat} coulé ! Rejouez !")
             self.ajouter_historique(f"{self.nom_joueurs[self.tour]} coule le {nom_bat} !")
 

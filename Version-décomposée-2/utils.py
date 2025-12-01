@@ -19,6 +19,7 @@ COULEURS = {
     "highlight": "#ffd60a",
 }
 
+
 def creer_grille(taille=10):
     return [[0]*taille for _ in range(taille)]
 
