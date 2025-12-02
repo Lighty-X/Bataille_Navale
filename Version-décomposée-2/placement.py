@@ -1,3 +1,10 @@
+COULEURS_BATEAUX = {
+    "USS Enterprise": "#0077b6",
+    "USS Defiant": "#ff6b6b",
+    "USS Discovery": "#ffd166",
+    "USS Voyager": "#06d6a0",
+    "USS Equinox": "#8338ec",
+}
 
 def rectangle_arrondi(canvas, x0, y0, x1, y1, r, fill, outline, width=1.2, contour_fond=None):
     if contour_fond is None:
@@ -117,7 +124,7 @@ class PlacementManuel:
             r = cell * 0.20
             rectangle_arrondi(self.canvas, x0, y0, x1, y1,
                               r=r,
-                              fill=COULEURS["bateau"],
+                              fill=b["couleur"],
                               outline=COULEURS["grille"],
                               width=1.2,
                               contour_fond=COULEURS["eau"])
@@ -160,7 +167,11 @@ class PlacementManuel:
             return
         for x, y in pos:
             self.grille[x][y] = 1
-        self.bateaux_places.append({"nom": nom, "positions": pos})
+        self.bateaux_places.append({
+            "nom": nom,
+            "positions": pos,
+            "couleur": COULEURS_BATEAUX[nom]
+        })
         self.index_bateau += 1
         self.redessiner()
         if self.index_bateau == len(self.bateaux):

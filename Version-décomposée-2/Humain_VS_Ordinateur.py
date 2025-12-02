@@ -87,7 +87,7 @@ class BatailleNavaleHumainVSOrdinateur:
             text="Règles du jeu",
             font=("Arial", 11, "bold"),
             command=self.afficher_regles,
-            bg="#00344d",
+            bg="#ffd60a",
             fg="white"
         )
         self.bouton_regles.pack(side="left", padx=10)
@@ -98,7 +98,7 @@ class BatailleNavaleHumainVSOrdinateur:
             text="Quitter la partie",
             font=("Arial", 11, "bold"),
             command=self.quitter_partie,
-            bg="#802020",
+            bg="#ed0000",
             fg="white"
         )
         self.bouton_quitter.pack(side="left", padx=10)
