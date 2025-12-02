@@ -1,5 +1,6 @@
 import tkinter as tk
 import random
+import math
 import winsound
 from Humain_VS_Humain import BatailleNavaleHumainVSHumain
 from Humain_VS_Ordinateur import BatailleNavaleHumainVSOrdinateur
@@ -7,13 +8,14 @@ from placement import PlacementManuel
 from utils import creer_grille, placer_bateau_aleatoire, NOMS_BATEAUX
 from Boutons import creer_boutons, afficher_regles, quitter_partie
 
+
 class MenuPrincipal:
     def __init__(self, root):
         self.root = root
         self.root.title("Bataille Navale - Menu Principal")
         self.root.configure(bg="#000000")
         self.root.geometry("650x600")
-        self.root.minsize(550, 600)
+        self.root.minsize(1500, 600)
 
         # ───────────────────────────────────────────────────────────────
         # FOND ANIMÉ : CANVAS AVEC ÉTOILES
@@ -27,6 +29,71 @@ class MenuPrincipal:
         self.creer_etoiles()
         self.animer_etoiles()
 
+        # ───────────────────────────────────────────────────────────────
+        # ANIMATION STAR WARS
+        # ───────────────────────────────────────────────────────────────
+        self.afficher_intro_starwars()
+
+    def afficher_intro_starwars(self):
+
+        texte = ("NEBULA STRIKE \n"
+                 "Bienvenue, jeune recrue. La Fédération Galactique fait face à une crise sans précédent. \n"
+                 "Notre capitaine, commandant de la flotte de défense de l'espace klingon, \n"
+                 "a été brutalement assassiné lors d'une mission diplomatique. Le sort en a décidé ainsi, \n"
+                 "et c'est désormais vous qui prenez le commandement de la flotte. \n\n"
+                 "Votre mission : protéger les secteurs stratégiques de la Fédération contre l'invasion klingonne, \n"
+                 "intercepter les vaisseaux ennemis et assurer la sécurité des colonies alliées. \n"
+                 "Chaque décision compte, chaque tir peut changer le cours de la guerre. \n"
+                 "Choisissez vos stratégies avec soin, déployez vos vaisseaux intelligemment et préparez-vous \n"
+                 "à affronter l'ennemi dans les profondeurs de l'espace. \n\n"
+                 "Le destin de la Fédération repose sur vos épaules, Commandant. \n"
+                 "Que la logique de Spock guide vos choix, et que le courage de Kirk inspire vos actions. \n"
+                 "Engagez-vous dans la bataille et faites briller l'étoile de la Fédération au milieu du chaos.")
+
+
+
+        # Créer un texte invisible au départ
+        self.texte_id = self.canvas.create_text(
+            self.canvas.winfo_width() // 2,
+            self.canvas.winfo_height(),
+            text=texte,
+            font=("Segoe UI", 24, "bold"),
+            fill="yellow",
+            justify="center"
+        )
+
+        self.intro_y = self.canvas.winfo_height()
+        self.intro_opacity = 0
+        self.animer_intro()
+
+    def animer_intro(self):
+        self.canvas.update()
+        h = self.canvas.winfo_height()
+
+        # Faire monter le texte
+        self.intro_y -= 1
+        self.canvas.coords(self.texte_id, self.canvas.winfo_width() // 2, self.intro_y)
+
+        # Faire disparaître progressivement
+        if self.intro_y < h * 0.2:
+            self.intro_opacity += 0.005
+            if self.intro_opacity > 1:
+                self.intro_opacity = 1
+            # Appliquer l'opacité (approximation avec la couleur)
+            alpha = int(255 * (1 - self.intro_opacity))
+            color = f"#{alpha:02x}{alpha:02x}00"  # Jaune qui s'estompe
+            self.canvas.itemconfig(self.texte_id, fill=color)
+
+        # Arrêter l'animation quand le texte a disparu
+        if self.intro_y < -100:
+            self.canvas.delete(self.texte_id)
+            self.afficher_menu()
+            return
+
+        self.root.after(35, self.animer_intro)
+
+    def afficher_menu(self):
+        """Affiche le menu après l'intro."""
         # FRAME PAR-DESSUS LE CANVAS
         self.main_frame = tk.Frame(self.root, bg="#000000")
         self.main_frame.place(relx=0.5, rely=0.5, anchor="center")
@@ -40,7 +107,7 @@ class MenuPrincipal:
 
         # ───────────────────────────────────────────────────────────────
         # TITRE
-        # ───────────────────────────────────────────────────────────────
+        # ───────────────────────────────────────────────────────
         tk.Label(
             self.main_frame,
             text="Nebula Strike",
@@ -98,8 +165,6 @@ class MenuPrincipal:
         self.mode.trace("w", self.mode_changed)
         self.mode_changed()
 
-
-
     # ───────────────────────────────────────────────────────────────
     #   ANIMATION DES ÉTOILES
     # ───────────────────────────────────────────────────────────────
@@ -113,7 +178,7 @@ class MenuPrincipal:
             x = random.randint(0, w)
             y = random.randint(0, h)
             r = random.randint(1, 3)
-            star = self.canvas.create_oval(x, y, x+r, y+r, fill="white", outline="")
+            star = self.canvas.create_oval(x, y, x + r, y + r, fill="white", outline="")
             self.etoiles.append((star, r))
 
     def animer_etoiles(self):
@@ -205,7 +270,11 @@ class MenuPrincipal:
 
         placer_joueur(0)
 
-
-
     def launch_game(self):
-        BatailleNavaleHumainVSHumain(self.root, self.grilles[0], self.grilles[1])
+        BatailleNavaleHumainVSHumain(self.root, self.grilles, self.grilles[1])
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    menu = MenuPrincipal(root)
+    root.mainloop()
