@@ -45,7 +45,7 @@ class MenuPrincipal:
             self.main_frame,
             text="Nebula Strike",
             font=("Segoe UI", 28, "bold"),
-            fg="#2aa198",
+            fg="#ffffff",
             bg="#000000"
         ).pack(pady=20)
 
@@ -57,21 +57,21 @@ class MenuPrincipal:
 
         # Mode de jeu
         tk.Label(self.frame, text="Mode de jeu",
-                 font=("Segoe UI", 16, "bold"), fg="#2aa198", bg="#000000").pack(pady=10)
+                 font=("Segoe UI", 16, "bold"), fg="#ffffff", bg="#000000").pack(pady=10)
 
         self.radio(self.frame, "Humain vs Machine", self.mode, "HvM")
         self.radio(self.frame, "Humain vs Humain", self.mode, "HvH")
 
         # Placement joueur 1
         tk.Label(self.frame, text="Placement Joueur 1",
-                 font=("Segoe UI", 15, "bold"), fg="#2aa198", bg="#000000").pack(pady=10)
+                 font=("Segoe UI", 15, "bold"), fg="#ffffff", bg="#000000").pack(pady=10)
 
         self.radio(self.frame, "Manuel", self.place1, "manuel", indent=1)
         self.radio(self.frame, "Automatique", self.place1, "auto", indent=1)
 
         # Placement joueur 2
         tk.Label(self.frame, text="Placement Joueur 2",
-                 font=("Segoe UI", 15, "bold"), fg="#2aa198", bg="#000000").pack(pady=10)
+                 font=("Segoe UI", 15, "bold"), fg="#ffffff", bg="#000000").pack(pady=10)
 
         self.place2_btns = [
             self.radio(self.frame, "Manuel", self.place2, "manuel", indent=1),
@@ -169,7 +169,7 @@ class MenuPrincipal:
         reg.configure(bg="#000000")
 
         tk.Label(reg, text="Règles de la Bataille Navale",
-                 font=("Segoe UI", 18, "bold"), fg="#2aa198", bg="#000000").pack(pady=10)
+                 font=("Segoe UI", 18, "bold"), fg="#ffffff", bg="#000000").pack(pady=10)
 
         texte = (
             "• Chaque joueur possède une grille 10x10.\n"

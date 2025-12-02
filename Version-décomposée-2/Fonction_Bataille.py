@@ -1,5 +1,7 @@
 from utils import placer_bateau_aleatoire
 
+
+
 def rectangle_arrondi(canvas, x0, y0, x1, y1, r, fill, outline, width=1.2, contour_fond=None):
 
     if contour_fond is None:
@@ -36,14 +38,20 @@ def rectangle_arrondi(canvas, x0, y0, x1, y1, r, fill, outline, width=1.2, conto
     canvas.create_arc(x1 - 2 * r, y1 - 2 * r, x1, y1, start=270, extent=90, style='arc', outline=outline, width=width)
 
 
+
+
 def dessiner_croix(canvas, x0, y0, x1, y1, color="red", epaisseur=2):
     # Petite croix (~50% de la case)
     marge = (x1 - x0) * 0.25
     canvas.create_line(x0 + marge, y0 + marge, x1 - marge, y1 - marge, fill=color, width=epaisseur)
     canvas.create_line(x0 + marge, y1 - marge, x1 - marge, y0 + marge, fill=color, width=epaisseur)
 
+
+
 def placer_bateau(grille, taille):
     return placer_bateau_aleatoire(grille, taille)
+
+
 
 def creer_grille_et_flotte(taille, flotte_infos):
     grille = [[0]*taille for _ in range(taille)]
@@ -53,11 +61,17 @@ def creer_grille_et_flotte(taille, flotte_infos):
         flotte.append({"nom": nom, "taille": t, "positions": pos, "touchees": set()})
     return grille, flotte
 
+
+
 def case_deja_jouee(grille, l, c):
     return grille[l][c] in (2, 3)
 
+
+
 def tous_coules(flotte):
     return all(set(b["positions"]) == b["touchees"] for b in flotte)
+
+
 
 def trouver_bateau(flotte, l, c):
     for b in flotte:
