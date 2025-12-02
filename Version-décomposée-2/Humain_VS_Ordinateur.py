@@ -43,6 +43,13 @@ class BatailleNavaleHumainVSOrdinateur:
         self.grille_ia, self.flotte_ia = creer_grille_et_flotte(self.taille, NOMS_BATEAUX)
         self.tirs_ia_en_attente = []
 
+        # Pouvoir spécial : bombe de zone (Z), utilisable une fois
+        self.bombe_disponible = True
+        self.bombe_en_cours = False
+
+        # Activation de la bombe de zone
+        self.root.bind("<z>", self.activer_bombe_zone)
+
         # UI - Labels, frames, canvas...
         self.label = tk.Label(root, text= self.A_toi_de_jouer, font=("Arial", 16, "bold"),
                               fg=COULEURS["highlight"], bg=COULEURS["fond"])
@@ -89,6 +96,17 @@ class BatailleNavaleHumainVSOrdinateur:
         creer_boutons(self.root,
                       lambda: afficher_regles(self),
                       lambda: quitter_partie(self))
+
+        # Bouton bombe
+        self.bouton_bombe = tk.Button(
+            self.frame_center,
+            text="Bombe de zone (Z)",
+            font=("Arial", 11, "bold"),
+            command=self.activer_bombe_zone,
+            bg="#000000",
+            fg="white"
+        )
+        self.bouton_bombe.pack(side="left", padx=10)
 
         # ---- Historique ----
         self.historique_frame = tk.Frame(root, bg=COULEURS["fond"])
@@ -153,11 +171,11 @@ class BatailleNavaleHumainVSOrdinateur:
 
                     # --- Points pour eau ou raté ---
                     if val == 0:
-                        color = "#9f9f9f"  # bleu doux
+                        color = "#38383b"  # bleu doux
                     elif val == 3:
                         color = "#FFFFFF"  # blanc
                     else:
-                        color = "#9f9f9f"  # eau pour les bateaux ennemis non touchés
+                        color = "#38383b"  # eau pour les bateaux ennemis non touchés
 
                     canvas.create_oval(
                         cx - r_point, cy - r_point,
@@ -176,6 +194,11 @@ class BatailleNavaleHumainVSOrdinateur:
         l = int((event.y - self.canvas_ia.offset_y) // self.canvas_ia.cell_size)
         if not (0 <= l < self.taille and 0 <= c < self.taille):
             return
+
+        if self.bombe_en_cours:
+            self.tirer_bombe_zone(l, c)
+            return
+
         if case_deja_jouee(self.grille_ia, l, c):
             self.ajouter_historique(" Déjà tenté ici, ressaisissez-vous capitaine !")
             return
@@ -298,6 +321,72 @@ class BatailleNavaleHumainVSOrdinateur:
             grille[l][c] = 3
             return "rate"
 
+    def activer_bombe_zone(self, event=None):
+        # Active le mode 'bombe de zone' si elle est encore disponible.
+        if not self.bombe_disponible:
+            self.ajouter_historique("La bombe de zone a déjà été utilisée.")
+            return
+        self.bombe_en_cours = True
+        self.label.config(text="Bombe de zone : clique sur une case !")
+        self.ajouter_historique("Bombe de zone activée : clique sur une case de la grille de l'ordinateur.")
+
+    def tirer_bombe_zone(self, l, c):
+        # Tire sur la case (l, c) et toutes les cases autour (3x3).
+        self.bombe_en_cours = False
+        self.bombe_disponible = False
+
+        a_touche = False
+        bateaux_coules = []
+
+        # Parcourt les 9 cases autour du centre (l, c)
+        for dl in (-1, 0, 1):
+            for dc in (-1, 0, 1):
+                ll = l + dl
+                cc = c + dc
+                if not (0 <= ll < self.taille and 0 <= cc < self.taille):
+                    continue
+                if case_deja_jouee(self.grille_ia, ll, cc):
+                    continue
+
+                res = self.jouer_tir(self.grille_ia, self.flotte_ia, ll, cc)
+
+                # coordonnées pour l'animation
+                x = self.canvas_ia.offset_x + cc * self.canvas_ia.cell_size + self.canvas_ia.cell_size / 2
+                y = self.canvas_ia.offset_y + ll * self.canvas_ia.cell_size + self.canvas_ia.cell_size / 2
+
+                if res == "rate":
+                    self.animation_eclaboussure(self.canvas_ia, x, y)
+                elif res == "touche":
+                    a_touche = True
+                    self.animation_explosion(self.canvas_ia, x, y)
+                elif res and res.startswith("coule"):
+                    a_touche = True
+                    nom_bat = res[6:]
+                    bateaux_coules.append(nom_bat)
+                    self.animation_explosion(self.canvas_ia, x, y, grand=True)
+
+        # On redessine la grille après tous les tirs
+        self.redessiner_grilles()
+
+        # Vérifier fin de partie
+        if tous_coules(self.flotte_ia):
+            self.label.config(text="Ta bombe de zone détruit la flotte adverse !")
+            self.ajouter_historique("Ta bombe de zone a détruit tous les vaisseaux ennemis !")
+            self.fin_partie(True)
+            return
+
+        # Messages en fonction du résultat
+        if a_touche:
+            self.label.config(text="Bombe de zone : Touché ! Rejoue !")
+            msg = "Ta bombe de zone touche plusieurs cases !"
+            if bateaux_coules:
+                msg += " Bateaux coulés : " + ", ".join(bateaux_coules)
+            self.ajouter_historique(msg)
+            # le joueur rejoue, donc on ne lance pas tour_ia()
+        else:
+            self.label.config(text="Bombe de zone ratée... À l'ordi de jouer.")
+            self.ajouter_historique("Ta bombe de zone ne touche aucun bateau.")
+            self.root.after(900, self.tour_ia)
     def voisins(self, l, c):
         return [(l+1, c), (l-1, c), (l, c+1), (l, c-1)]
 

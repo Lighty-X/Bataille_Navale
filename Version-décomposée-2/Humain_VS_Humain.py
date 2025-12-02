@@ -147,7 +147,7 @@ class BatailleNavaleHumainVSHumain:
                     canvas.create_oval(
                         cx - r_point, cy - r_point,
                         cx + r_point, cy + r_point,
-                        fill=COULEURS.get("eau_point", "#9f9f9f"),
+                        fill=COULEURS.get("eau_point", "#38383b"),
                         outline=""
                     )
 

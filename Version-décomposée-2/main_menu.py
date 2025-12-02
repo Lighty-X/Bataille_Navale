@@ -89,15 +89,16 @@ class MenuPrincipal:
             command=self.start_game
         ).pack(pady=20)
 
-
-        self.mode.trace("w", self.mode_changed)
-        self.mode_changed()
-
         creer_boutons(
             self.root,
             lambda: afficher_regles(self),
             lambda: quitter_partie(self)
         )
+
+        self.mode.trace("w", self.mode_changed)
+        self.mode_changed()
+
+
 
     # ───────────────────────────────────────────────────────────────
     #   ANIMATION DES ÉTOILES
@@ -203,6 +204,8 @@ class MenuPrincipal:
                 suivant(g)
 
         placer_joueur(0)
+
+
 
     def launch_game(self):
         BatailleNavaleHumainVSHumain(self.root, self.grilles[0], self.grilles[1])

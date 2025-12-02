@@ -14,7 +14,7 @@ COULEURS = {
     "bateau": "#ffffff",
     "touche": "#ef233c",
     "rate": "#ffffff",
-    "grille": "#ebe8fa",
+    "grille": "#646369",
     "texte": "#ffffff",
     "highlight": "#ffd60a",
 }
