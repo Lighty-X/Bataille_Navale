@@ -333,11 +333,3 @@ class BatailleNavaleHumainVSHumain:
 
     def voisins(self, l, c):
         return [(l+1, c), (l-1, c), (l, c+1), (l, c-1)]
-
-
-# Example usage:
-# if __name__ == "__main__":
-#     root = tk.Tk()
-#     # grille1 and grille2 must be 10x10 matrices with values: 0 (eau), 1 (bateau), ...
-#     app = BatailleNavaleHumainVSHumain(root, grille1, grille2)
-#     root.mainloop()

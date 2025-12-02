@@ -55,6 +55,7 @@ def dessiner_point_case(canvas, x0, y0, x1, y1, couleur):
 class PlacementManuel:
     def __init__(self, root, callback):
         self.root = root
+        self.root.minsize(600, 1600)
         self.taille = 10
         self.grille = creer_grille(self.taille)
         self.bateaux = NOMS_BATEAUX.copy()
@@ -67,7 +68,7 @@ class PlacementManuel:
         self.frame = tk.Frame(root, bg=COULEURS["fond"])
         self.frame.pack(expand=True, fill="both")
 
-        self.label = tk.Label(self.frame, text="Placez vos bateaux",
+        self.label = tk.Label(self.frame, text="Préparez votre flotte, l'ennemi rode",
                               font=("Arial", 18, "bold"),
                               fg=COULEURS["highlight"], bg=COULEURS["fond"])
         self.label.pack(pady=10)
@@ -82,7 +83,7 @@ class PlacementManuel:
         self.canvas.bind("<Configure>", self.redessiner)
 
         # Bouton valider
-        self.btn_valider = tk.Button(self.frame, text="Valider le placement",
+        self.btn_valider = tk.Button(self.frame, text="Prêt à l'affrontement !",
                                      font=("Arial", 14), bg="#008000", fg="white",
                                      command=self.valider)
         self.btn_valider.pack(pady=15)
@@ -134,7 +135,7 @@ class PlacementManuel:
             nom, t = self.bateaux[self.index_bateau]
             self.label.config(text=f"Placez : {nom} ({t} cases) - {'Vertical' if self.vertical else 'Horizontal'}")
         else:
-            self.label.config(text="Tous les bateaux sont placés !")
+            self.label.config(text="Tous les vaisseaux sont en position !")
 
     # --- Changer l'orientation ---
     def toggle_orientation(self):
@@ -175,7 +176,7 @@ class PlacementManuel:
         self.index_bateau += 1
         self.redessiner()
         if self.index_bateau == len(self.bateaux):
-            self.label.config(text="Tous les bateaux sont placés !")
+            self.label.config(text="Tous les vaisseaux sont en position !")
             self.btn_valider.config(state="normal")
 
     # --- Supprimer un bateau ---
@@ -186,11 +187,11 @@ class PlacementManuel:
                     self.grille[x][y] = 0
                 self.bateaux_places.remove(b)
                 self.index_bateau = len(self.bateaux_places)
-                self.label.config(text=f"{b['nom']} supprimé. Replacez-le.")
+                self.label.config(text=f"{b['nom']} au garage. Replacez-le.")
                 self.btn_valider.config(state="disabled")
                 self.redessiner()
                 return
-        self.label.config(text="💡 Aucun bateau ici.")
+        self.label.config(text="💡 Aucun vaisseau ici.")
 
     # --- Valider et envoyer la grille au callback ---
     def valider(self):

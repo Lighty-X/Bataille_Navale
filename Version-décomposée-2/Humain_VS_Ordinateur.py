@@ -5,6 +5,7 @@ from tkinter import simpledialog, messagebox
 from utils import NOMS_BATEAUX, COULEURS
 from Fonction_Bataille import rectangle_arrondi, creer_grille_et_flotte, case_deja_jouee, tous_coules, trouver_bateau
 from Boutons import creer_boutons, afficher_regles, quitter_partie
+from Noms import NOMS_IA, A_TOI_DE_JOUER, A_TOI_DE_RATER
 
 
 class BatailleNavaleHumainVSOrdinateur:
@@ -13,8 +14,12 @@ class BatailleNavaleHumainVSOrdinateur:
         self.root.title(" Bataille Navale Animée ")
         self.root.configure(bg=COULEURS["fond"])
         self.taille = 10
-        self.nom_joueur = simpledialog.askstring("Nom", "Ton pseudo ?", parent=root) or "Joueur"
-        self.nom_ia = "Ordinateur"
+        self.nom_joueur = simpledialog.askstring("Nom", "Comment vous appelez-vous jeune recrue ?", parent=root) or "Joueur"
+        self.nom_ia = random.choice(NOMS_IA)
+
+        self.A_toi_de_jouer = random.choice(A_TOI_DE_JOUER)
+
+
 
         # Grilles et flottes
         if grille_joueur:
@@ -39,7 +44,7 @@ class BatailleNavaleHumainVSOrdinateur:
         self.tirs_ia_en_attente = []
 
         # UI - Labels, frames, canvas...
-        self.label = tk.Label(root, text="À toi de jouer !", font=("Arial", 16, "bold"),
+        self.label = tk.Label(root, text= self.A_toi_de_jouer, font=("Arial", 16, "bold"),
                               fg=COULEURS["highlight"], bg=COULEURS["fond"])
         self.label.pack(pady=5)
 
@@ -96,7 +101,7 @@ class BatailleNavaleHumainVSOrdinateur:
 
         self.canvas_ia.bind("<Button-1>", self.click_ia)
         self.main_frame.bind("<Configure>", self.redessiner_grilles)
-        self.ajouter_historique("Bienvenue dans la bataille navale ")
+        self.ajouter_historique("Prenez place capitaine, les ennemis approchent")
 
     def redessiner_grilles(self, event=None):
         for idx in [0, 1]:
@@ -172,7 +177,7 @@ class BatailleNavaleHumainVSOrdinateur:
         if not (0 <= l < self.taille and 0 <= c < self.taille):
             return
         if case_deja_jouee(self.grille_ia, l, c):
-            self.ajouter_historique(" Déjà tenté ici !")
+            self.ajouter_historique(" Déjà tenté ici, ressaisissez-vous capitaine !")
             return
 
         res = self.jouer_tir(self.grille_ia, self.flotte_ia, l, c)
@@ -182,22 +187,28 @@ class BatailleNavaleHumainVSOrdinateur:
         if res == "rate":
             winsound.PlaySound("Rate.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_eclaboussure(self.canvas_ia, x, y)
-            self.label.config(text="Raté ")
-            self.ajouter_historique("Tu rates la case...")
+            phrase = random.choice(A_TOI_DE_RATER)
+            self.label.config(text=phrase)
+            self.ajouter_historique(phrase)
             self.root.after(900, self.tour_ia)
+
         elif res == "touche":
             winsound.PlaySound("Touche.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_explosion(self.canvas_ia, x, y)
-            self.label.config(text="Touché ! Rejoue !")
-            self.ajouter_historique("Touché ! Rejoue !")
+
+            phrase = random.choice(A_TOI_DE_JOUER)
+            self.label.config(text=phrase)
+            self.ajouter_historique(phrase)
+
             if tous_coules(self.flotte_ia):
                 self.fin_partie(True)
+
         elif res.startswith("coule"):
             self.animation_explosion(self.canvas_ia, x, y, grand=True)
             nom_bat = res[6:]
             winsound.PlaySound("Coule.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
-            self.label.config(text=f"{nom_bat} coulé ! Rejoue !")
-            self.ajouter_historique(f"Tu coules le {nom_bat} !")
+            self.label.config(text=f"{nom_bat} détruit ! Intensifiez les frappes capitaine!")
+            self.ajouter_historique(f"Vous avez détruit le {nom_bat} !")
             if tous_coules(self.flotte_ia):
                 self.fin_partie(True)
 
@@ -218,13 +229,13 @@ class BatailleNavaleHumainVSOrdinateur:
         if res == "rate":
             winsound.PlaySound("Rate.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_eclaboussure(self.canvas_joueur, x, y)
-            self.label.config(text="L'ordi rate. À toi !")
-            self.ajouter_historique("L'ordi rate.")
+            self.label.config(text="L'ennemi rate. À vous!")
+            self.ajouter_historique("L'ennemi nous laisse la possibilité de contre-attaquer.")
         elif res == "touche":
             winsound.PlaySound("Touche.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_explosion(self.canvas_joueur, x, y)
-            self.label.config(text="L'ordi touche ! Il rejoue !")
-            self.ajouter_historique(f"L'ordi touche ({l+1},{c+1}) ! Il rejoue !")
+            self.label.config(text="L'ennemi touche ! Redirigez les boucliers !")
+            self.ajouter_historique(f"L'ennemi touche ({l+1},{c+1}) ! Il perturbe notre tactique !")
             self.tirs_ia_en_attente += [(ll, cc) for (ll, cc) in self.voisins(l, c)
                                          if 0 <= ll < self.taille and 0 <= cc < self.taille and not case_deja_jouee(self.grille_joueur, ll, cc)]
             if tous_coules(self.flotte_joueur):
@@ -234,8 +245,8 @@ class BatailleNavaleHumainVSOrdinateur:
         elif res.startswith("coule"):
             self.animation_explosion(self.canvas_joueur, x, y, grand=True)
             nom_bat = res[6:]
-            self.label.config(text=f"L'ordi coule ton {nom_bat}  !")
-            self.ajouter_historique(f"L'ordi coule ton {nom_bat} !")
+            self.label.config(text=f" {nom_bat} est hors d'usage, il va se replier !")
+            self.ajouter_historique(f"L'ennemi coule ton {nom_bat} !")
             self.tirs_ia_en_attente.clear()
             if tous_coules(self.flotte_joueur):
                 self.fin_partie(False)

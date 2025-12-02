@@ -5,15 +5,15 @@ from Humain_VS_Humain import BatailleNavaleHumainVSHumain
 from Humain_VS_Ordinateur import BatailleNavaleHumainVSOrdinateur
 from placement import PlacementManuel
 from utils import creer_grille, placer_bateau_aleatoire, NOMS_BATEAUX
-
+from Boutons import creer_boutons, afficher_regles, quitter_partie
 
 class MenuPrincipal:
     def __init__(self, root):
         self.root = root
         self.root.title("Bataille Navale - Menu Principal")
         self.root.configure(bg="#000000")
-        self.root.geometry("650x550")
-        self.root.minsize(550, 500)
+        self.root.geometry("650x600")
+        self.root.minsize(550, 700)
 
         # ───────────────────────────────────────────────────────────────
         # FOND ANIMÉ : CANVAS AVEC ÉTOILES
@@ -89,28 +89,15 @@ class MenuPrincipal:
             command=self.start_game
         ).pack(pady=20)
 
-        # Boutons règles + quitter
-        bottom = tk.Frame(self.frame, bg="#000000")
-        bottom.pack(pady=10)
-
-        tk.Button(
-            bottom, text="📘 Règles",
-            font=("Segoe UI", 12, "bold"),
-            bg="#000000", fg="white",
-            relief="flat", padx=15,
-            command=self.afficher_regles
-        ).pack(side="left", padx=10)
-
-        tk.Button(
-            bottom, text="⛔ Quitter",
-            font=("Segoe UI", 12, "bold"),
-            bg="#000000", fg="white",
-            relief="flat", padx=15,
-            command=self.root.destroy
-        ).pack(side="left", padx=10)
 
         self.mode.trace("w", self.mode_changed)
         self.mode_changed()
+
+        creer_boutons(
+            self.root,
+            lambda: afficher_regles(self),
+            lambda: quitter_partie(self)
+        )
 
     # ───────────────────────────────────────────────────────────────
     #   ANIMATION DES ÉTOILES
@@ -160,31 +147,6 @@ class MenuPrincipal:
         )
         rb.pack(anchor="w")
         return rb
-
-    # ───────────────────────────────────────────────────────────────
-    def afficher_regles(self):
-        reg = tk.Toplevel(self.root)
-        reg.title("Règles du jeu")
-        reg.geometry("500x400")
-        reg.configure(bg="#000000")
-
-        tk.Label(reg, text="Règles de la Bataille Navale",
-                 font=("Segoe UI", 18, "bold"), fg="#ffffff", bg="#000000").pack(pady=10)
-
-        texte = (
-            "• Chaque joueur possède une grille 10x10.\n"
-            "• Les bateaux sont placés manuellement ou automatiquement.\n"
-            "• Les joueurs tirent chacun leur tour.\n"
-            "• Un bateau est coulé lorsque toutes ses cases sont touchées.\n"
-            "• Le premier à couler toute la flotte ennemie gagne !"
-        )
-
-        tk.Label(reg, text=texte, fg="white", bg="#000000",
-                 justify="left", font=("Segoe UI", 12)).pack(padx=20, pady=20)
-
-        tk.Button(reg, text="Fermer", font=("Segoe UI", 12),
-                  bg="#000000", fg="white",
-                  relief="flat", command=reg.destroy).pack(pady=10)
 
     # ───────────────────────────────────────────────────────────────
     def mode_changed(self, *args):

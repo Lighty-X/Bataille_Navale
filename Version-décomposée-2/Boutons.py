@@ -18,7 +18,7 @@ def creer_boutons(parent, afficher_regles, quitter_partie):
 def afficher_regles(self):
     reg = tk.Toplevel(self.root)
     reg.title("Règles du jeu")
-    reg.geometry("500x400")
+    reg.geometry("700x500")
     reg.configure(bg="#000000")
 
     tk.Label(reg, text="Règles de la Bataille Navale",
