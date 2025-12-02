@@ -14,7 +14,7 @@ class BatailleNavaleHumainVSOrdinateur:
         self.root.title(" Bataille Navale Animée ")
         self.root.configure(bg=COULEURS["fond"])
         self.taille = 10
-        self.nom_joueur = simpledialog.askstring("Nom", "Comment vous appelez-vous jeune recrue ?", parent=root) or "Joueur"
+        self.nom_joueur = self.demander_nom() or "Joueur"
         self.nom_ia = random.choice(NOMS_IA)
 
         self.A_toi_de_jouer = random.choice(A_TOI_DE_JOUER)
@@ -120,6 +120,43 @@ class BatailleNavaleHumainVSOrdinateur:
         self.canvas_ia.bind("<Button-1>", self.click_ia)
         self.main_frame.bind("<Configure>", self.redessiner_grilles)
         self.ajouter_historique("Prenez place capitaine, les ennemis approchent")
+
+    def demander_nom(self):
+        # Création d'une fenêtre Toplevel
+        nom_win = tk.Toplevel(self.root)
+        nom_win.title("Nom du joueur")
+        nom_win.geometry("400x200")
+        nom_win.configure(bg="#000000")
+
+        # Empêcher l’utilisateur d’interagir avec la fenêtre principale
+        nom_win.grab_set()
+
+        tk.Label(nom_win, text="Comment vous appelez-vous jeune recrue ?",
+                 font=("Segoe UI", 14, "bold"), fg="#2aa198", bg="#000000").pack(pady=20)
+
+        entry = tk.Entry(nom_win, font=("Segoe UI", 14), fg="#2aa198", bg="#002b36",
+                         insertbackground="#2aa198")  # couleur du curseur
+        entry.pack(pady=10)
+        entry.focus()
+
+        # Variable pour récupérer le résultat
+        nom_var = tk.StringVar()
+
+        def valider():
+            nom = entry.get().strip()
+            if nom == "":
+                nom = "Joueur"
+            nom_var.set(nom)
+            nom_win.destroy()
+
+        tk.Button(nom_win, text="Valider", command=valider,
+                  font=("Segoe UI", 12), fg="#000000", bg="#2aa198").pack(pady=10)
+
+        # Attendre la fermeture de la fenêtre (modal)
+        self.root.wait_window(nom_win)
+
+        return nom_var.get()
+
 
     def redessiner_grilles(self, event=None):
         for idx in [0, 1]:

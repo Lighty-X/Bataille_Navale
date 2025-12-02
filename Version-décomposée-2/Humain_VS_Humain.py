@@ -11,10 +11,7 @@ class BatailleNavaleHumainVSHumain:
     def __init__(self, root, grille1, grille2):
         self.root = root
         self.taille = 10
-        self.nom_joueurs = [
-            simpledialog.askstring("Nom joueur 1", "Nom du Joueur 1 ?", parent=root) or "Joueur 1",
-            simpledialog.askstring("Nom joueur 2", "Nom du Joueur 2 ?", parent=root) or "Joueur 2"
-        ]
+        self.nom_joueurs = self.demander_noms_joueurs()
         self.grilles = [grille1, grille2]
         self.flottes = []
 
@@ -115,6 +112,45 @@ class BatailleNavaleHumainVSHumain:
         text = "Cacher mes bateaux" if self.montrer_bateaux[idx] else "Voir mes bateaux"
         self.boutons_voir[idx].config(text=text)
         self.redessiner_grilles()
+
+    def demander_noms_joueurs(self):
+        # Création d'une fenêtre Toplevel
+        noms_win = tk.Toplevel(self.root)
+        noms_win.title("Noms des joueurs")
+        noms_win.geometry("500x300")
+        noms_win.configure(bg="#000000")
+
+        # Empêcher l’interaction avec la fenêtre principale
+        noms_win.grab_set()
+
+        tk.Label(noms_win, text="Entrez les noms des joueurs",
+                 font=("Segoe UI", 16, "bold"), fg="#2aa198", bg="#000000").pack(pady=20)
+
+        # Entrées pour les deux joueurs
+        tk.Label(noms_win, text="Joueur 1 :", font=("Segoe UI", 14), fg="#2aa198", bg="#000000").pack(pady=(10, 0))
+        entry1 = tk.Entry(noms_win, font=("Segoe UI", 14), fg="#2aa198", bg="#002b36", insertbackground="#2aa198")
+        entry1.pack(pady=5)
+        entry1.focus()
+
+        tk.Label(noms_win, text="Joueur 2 :", font=("Segoe UI", 14), fg="#2aa198", bg="#000000").pack(pady=(10, 0))
+        entry2 = tk.Entry(noms_win, font=("Segoe UI", 14), fg="#2aa198", bg="#002b36", insertbackground="#2aa198")
+        entry2.pack(pady=5)
+
+        noms_var = [tk.StringVar(), tk.StringVar()]
+
+        def valider():
+            noms_var[0].set(entry1.get().strip() or "Joueur 1")
+            noms_var[1].set(entry2.get().strip() or "Joueur 2")
+            noms_win.destroy()
+
+        tk.Button(noms_win, text="Valider", command=valider,
+                  font=("Segoe UI", 12), fg="#000000", bg="#2aa198").pack(pady=20)
+
+        # Attendre la fermeture de la fenêtre
+        self.root.wait_window(noms_win)
+
+        return [noms_var[0].get(), noms_var[1].get()]
+
 
     def redessiner_grilles(self, event=None):
         # Dessin inspiré de l'implémentation animée (points + rectangles arrondis)

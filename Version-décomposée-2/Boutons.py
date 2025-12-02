@@ -46,5 +46,34 @@ def afficher_regles(self):
 
 
 def quitter_partie(self):
-    if messagebox.askyesno("Quitter", "Voulez-vous vraiment quitter la partie ?"):
+    # Création de la fenêtre Toplevel
+    quitter_win = tk.Toplevel(self.root)
+    quitter_win.title("Quitter")
+    quitter_win.geometry("400x200")
+    quitter_win.configure(bg="#000000")
+
+    # Empêche l’utilisateur d’interagir avec la fenêtre principale
+    quitter_win.grab_set()
+
+    tk.Label(quitter_win, text="Voulez-vous vraiment quitter la partie ?",
+             font=("Segoe UI", 14, "bold"), fg="#2aa198", bg="#000000").pack(pady=30)
+
+    # Fonction pour quitter
+    def oui():
         self.root.destroy()
+
+    # Fonction pour annuler
+    def non():
+        quitter_win.destroy()
+
+    # Boutons Oui / Non
+    btn_frame = tk.Frame(quitter_win, bg="#000000")
+    btn_frame.pack(pady=20)
+
+    tk.Button(btn_frame, text="Oui", command=oui,
+              font=("Segoe UI", 12), fg="#000000", bg="#2aa198", width=10).pack(side="left", padx=10)
+    tk.Button(btn_frame, text="Non", command=non,
+              font=("Segoe UI", 12), fg="#000000", bg="#2aa198", width=10).pack(side="left", padx=10)
+
+    # Attendre la fermeture de la fenêtre
+    self.root.wait_window(quitter_win)
