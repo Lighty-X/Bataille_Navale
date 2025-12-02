@@ -84,10 +84,10 @@ class BatailleNavaleHumainVSOrdinateur:
         # Bouton RÈGLES
         self.bouton_regles = tk.Button(
             self.frame_center,
-            text="Règles du jeu",
+            text="📘 Règles",
             font=("Arial", 11, "bold"),
             command=self.afficher_regles,
-            bg="#ffd60a",
+            bg="#000000",
             fg="white"
         )
         self.bouton_regles.pack(side="left", padx=10)
@@ -95,10 +95,10 @@ class BatailleNavaleHumainVSOrdinateur:
         # Bouton QUITTER
         self.bouton_quitter = tk.Button(
             self.frame_center,
-            text="Quitter la partie",
+            text="⛔ Quitter",
             font=("Arial", 11, "bold"),
             command=self.quitter_partie,
-            bg="#ed0000",
+            bg="#000000",
             fg="white"
         )
         self.bouton_quitter.pack(side="left", padx=10)
@@ -107,7 +107,7 @@ class BatailleNavaleHumainVSOrdinateur:
         self.historique_frame = tk.Frame(root, bg=COULEURS["fond"])
         self.historique_frame.pack(fill="x", pady=(5, 10))
         self.historique_txt = tk.Text(self.historique_frame, width=80, height=6,
-                                      font=("Consolas", 10), bg="#001220",
+                                      font=("Consolas", 10), bg="#000000",
                                       fg=COULEURS["texte"], relief="flat", state="disabled", wrap="word")
         self.historique_txt.pack(padx=20, fill="x")
         self.historique = []
@@ -117,6 +117,14 @@ class BatailleNavaleHumainVSOrdinateur:
         self.ajouter_historique("Bienvenue dans la bataille navale ")
 
     def afficher_regles(self):
+        reg = tk.Toplevel(self.root)
+        reg.title("Règles du jeu")
+        reg.geometry("500x400")
+        reg.configure(bg="#000000")
+
+        tk.Label(reg, text="Règles de la Bataille Navale",
+                 font=("Segoe UI", 18, "bold"), fg="#2aa198", bg="#000000").pack(pady=10)
+
         texte = (
             "Nebula Strike - Règles du jeu\n\n"
             "- Deux joueurs s'affrontent dans une bataille spatiale.\n"
@@ -128,7 +136,14 @@ class BatailleNavaleHumainVSOrdinateur:
             "- Le premier joueur qui détruit tous les vaisseaux adverses gagne.\n"
             "- Attention aux astéroïdes !\n"
         )
-        messagebox.showinfo("Règles du jeu", texte)
+
+        tk.Label(reg, text=texte, fg="white", bg="#000000",
+                 justify="left", font=("Segoe UI", 12)).pack(padx=20, pady=20)
+
+        tk.Button(reg, text="Fermer", font=("Segoe UI", 12),
+                  bg="#000000", fg="white",
+                  relief="flat", command=reg.destroy).pack(pady=10)
+
 
     def quitter_partie(self):
         if messagebox.askyesno("Quitter", "Voulez-vous vraiment quitter la partie ?"):
@@ -175,7 +190,7 @@ class BatailleNavaleHumainVSOrdinateur:
                         rectangle_arrondi(
                             canvas, x0, y0, x0 + cell_size, y0 + cell_size,
                             r=r_square,
-                            fill="#D0D0D0",  # gris clair
+                            fill="#FFFFFF",  # gris clair
                             outline=COULEURS["grille"],
                             width=1.2,
                             contour_fond="white"
@@ -184,11 +199,11 @@ class BatailleNavaleHumainVSOrdinateur:
 
                     # --- Points pour eau ou raté ---
                     if val == 0:
-                        color = "#5A8CBF"  # bleu doux
+                        color = "#9f9f9f"  # bleu doux
                     elif val == 3:
                         color = "#FFFFFF"  # blanc
                     else:
-                        color = "#5A8CBF"  # eau pour les bateaux ennemis non touchés
+                        color = "#9f9f9f"  # eau pour les bateaux ennemis non touchés
 
                     canvas.create_oval(
                         cx - r_point, cy - r_point,

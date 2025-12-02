@@ -4,7 +4,7 @@ from utils import NOMS_BATEAUX, COULEURS
 import winsound
 from Fonction_Bataille import rectangle_arrondi
 import math
-import random
+
 
 
 class BatailleNavaleHumainVSHumain:
@@ -77,11 +77,41 @@ class BatailleNavaleHumainVSHumain:
         self.root.after(0, self.redessiner_grilles)
         self.main_frame.bind("<Configure>", self.redessiner_grilles)
 
+        # ---- Frame pour les boutons ----
+        self.frame_boutons = tk.Frame(root, bg=COULEURS["fond"])
+        self.frame_boutons.pack(fill="x", pady=(5, 0))
+
+        # Sous-frame centrée
+        self.frame_center = tk.Frame(self.frame_boutons, bg=COULEURS["fond"])
+        self.frame_center.pack()
+
+        # Bouton RÈGLES
+        self.bouton_regles = tk.Button(
+            self.frame_center,
+            text="📘 Règles",
+            font=("Arial", 11, "bold"),
+            command=self.afficher_regles,
+            bg="#000000",
+            fg="white"
+        )
+        self.bouton_regles.pack(side="left", padx=10)
+
+        # Bouton QUITTER
+        self.bouton_quitter = tk.Button(
+            self.frame_center,
+            text="⛔ Quitter",
+            font=("Arial", 11, "bold"),
+            command=self.quitter_partie,
+            bg="#000000",
+            fg="white"
+        )
+        self.bouton_quitter.pack(side="left", padx=10)
+
         # Historique
         self.historique_frame = tk.Frame(root, bg=COULEURS["fond"])
         self.historique_frame.pack(fill="x", pady=(5, 10))
         self.historique_txt = tk.Text(self.historique_frame, width=80, height=6,
-                                      font=("Consolas", 10), bg="#001220",
+                                      font=("Consolas", 10), bg="#000000",
                                       fg=COULEURS["texte"], relief="flat", state="disabled", wrap="word")
         self.historique_txt.pack(padx=20, fill="x")
         self.historique = []
@@ -90,6 +120,35 @@ class BatailleNavaleHumainVSHumain:
 
         # Initialiser les bindings pour le tour
         self.set_bindings()
+
+    def afficher_regles(self):
+        reg = tk.Toplevel(self.root)
+        reg.title("Règles du jeu")
+        reg.geometry("500x400")
+        reg.configure(bg="#000000")
+
+        tk.Label(reg, text="Règles de la Bataille Navale",
+                 font=("Segoe UI", 18, "bold"), fg="#2aa198", bg="#000000").pack(pady=10)
+
+        texte = (
+            "Nebula Strike - Règles du jeu\n\n"
+            "- Deux joueurs s'affrontent dans une bataille spatiale.\n"
+            "- Chaque joueur possède 5 vaisseaux de tailles différentes.\n"
+            "- Les vaisseaux sont placés sur une grille 10 x 10.\n"
+            "- À tour de rôle, chaque joueur tire sur une case adverse.\n"
+            "- Si la case contient un vaisseau, il est touché, le joueur rejoue.\n"
+            "- Quand toutes les cases d’un vaisseau sont touchées, ce dernier est coulé.\n"
+            "- Le premier joueur qui détruit tous les vaisseaux adverses gagne.\n"
+            "- Attention aux astéroïdes !\n"
+        )
+
+        tk.Label(reg, text=texte, fg="white", bg="#000000",
+                 justify="left", font=("Segoe UI", 12)).pack(padx=20, pady=20)
+
+        tk.Button(reg, text="Fermer", font=("Segoe UI", 12),
+                  bg="#000000", fg="white",
+                  relief="flat", command=reg.destroy).pack(pady=10)
+
 
     def set_bindings(self):
         # Débind puis bind uniquement la grille de l'adversaire
@@ -135,7 +194,7 @@ class BatailleNavaleHumainVSHumain:
                     canvas.create_oval(
                         cx - r_point, cy - r_point,
                         cx + r_point, cy + r_point,
-                        fill=COULEURS.get("eau_point", "#6FA8DC"),
+                        fill=COULEURS.get("eau_point", "#9f9f9f"),
                         outline=""
                     )
 
@@ -156,7 +215,7 @@ class BatailleNavaleHumainVSHumain:
                         rectangle_arrondi(
                             canvas, x0, y0, x0 + cell_size, y0 + cell_size,
                             r=r_square,
-                            fill=COULEURS.get("bateau", "#D0D0D0"),
+                            fill=COULEURS.get("bateau", "#000000"),
                             outline=COULEURS.get("grille", "#123456"),
                             width=1.2,
                             contour_fond="white"
@@ -168,7 +227,7 @@ class BatailleNavaleHumainVSHumain:
                         canvas.create_oval(
                             cx - r_point, cy - r_point,
                             cx + r_point, cy + r_point,
-                            fill=COULEURS.get("rate", "#FF4444"),
+                            fill=COULEURS.get("rate", "#ffffff"),
                             outline=""
                         )
                         continue
@@ -266,6 +325,10 @@ class BatailleNavaleHumainVSHumain:
         self.historique_txt.insert(tk.END, "\n".join(self.historique[-10:]) + "\n")
         self.historique_txt.see(tk.END)
         self.historique_txt.config(state="disabled")
+
+    def quitter_partie(self):
+        if messagebox.askyesno("Quitter", "Voulez-vous vraiment quitter la partie ?"):
+            self.root.destroy()
 
     def fin_partie(self, gagnant):
         msg = f"Victoire de {self.nom_joueurs[gagnant]} !"
