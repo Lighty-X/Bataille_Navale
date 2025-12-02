@@ -13,6 +13,7 @@ class BatailleNavaleHumainVSOrdinateur:
         self.root = root
         self.root.title(" Bataille Navale Animée ")
         self.root.configure(bg=COULEURS["fond"])
+        self.root.minsize(900, 1000)
         self.taille = 10
         self.nom_joueur = self.demander_nom() or "Joueur"
         self.nom_ia = random.choice(NOMS_IA)
@@ -83,7 +84,7 @@ class BatailleNavaleHumainVSOrdinateur:
         self.montrer_bateaux = [True, False]
 
         # Premier dessin automatique dès que Tk a fini de dimensionner les canvases
-        self.root.after(0, self.redessiner_grilles)
+        self.root.after(0, self.redessiner_grilles_safe())
 
         # ---- Frame pour les boutons ----
         self.frame_boutons = tk.Frame(root, bg=COULEURS["fond"])
@@ -157,6 +158,12 @@ class BatailleNavaleHumainVSOrdinateur:
 
         return nom_var.get()
 
+    def redessiner_grilles_safe(self):
+        # On attend que Tk ait attribué une taille réelle
+        if self.canvas_joueur.winfo_width() < 5 or self.canvas_ia.winfo_width() < 5:
+            self.root.after(20, self.redessiner_grilles_safe)
+        else:
+            self.redessiner_grilles()
 
     def redessiner_grilles(self, event=None):
         for idx in [0, 1]:

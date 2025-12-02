@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 
+
 def creer_boutons(parent, afficher_regles, quitter_partie):
     frame_boutons = tk.Frame(parent, bg="#000000")
     frame_boutons.pack(fill="x", pady=(5, 0))
@@ -77,3 +78,5 @@ def quitter_partie(self):
 
     # Attendre la fermeture de la fenêtre
     self.root.wait_window(quitter_win)
+
+

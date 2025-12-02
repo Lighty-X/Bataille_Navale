@@ -10,10 +10,13 @@ from Boutons import creer_boutons, afficher_regles, quitter_partie
 class BatailleNavaleHumainVSHumain:
     def __init__(self, root, grille1, grille2):
         self.root = root
+        self.root.minsize(500, 500)
         self.taille = 10
         self.nom_joueurs = self.demander_noms_joueurs()
         self.grilles = [grille1, grille2]
         self.flottes = []
+
+        self.root.update_idletasks()  # Calcule les dimensions
 
         # Créer les flottes avec positions correctes par bateau
         for n in (0, 1):
@@ -151,14 +154,27 @@ class BatailleNavaleHumainVSHumain:
 
         return [noms_var[0].get(), noms_var[1].get()]
 
-
     def redessiner_grilles(self, event=None):
-        # Dessin inspiré de l'implémentation animée (points + rectangles arrondis)
+        # Vérifier si la fenêtre est déjà affichée
+        if not self.root.winfo_viewable():
+            # Programmer un redessin quand la fenêtre sera visible
+            self.root.after(100, lambda: self.redessiner_grilles())
+            return
+
         for idx in [0, 1]:
             canvas, grille = self.canvases[idx], self.grilles[idx]
             canvas.delete("all")
 
             w, h = canvas.winfo_width(), canvas.winfo_height()
+
+            # Si dimensions trop petites, forcer un minimum
+            if w <= 10 or h <= 10:
+                # Utiliser les dimensions requises minimales
+                w = canvas.winfo_reqwidth()
+                h = canvas.winfo_reqheight()
+                if w <= 10 or h <= 10:
+                    w, h = 400, 400  # Dimensions par défaut
+
             size = min(w, h)
             if size <= 0:
                 # Pas encore dimensionné

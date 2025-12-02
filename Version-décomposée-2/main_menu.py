@@ -13,7 +13,7 @@ class MenuPrincipal:
         self.root.title("Bataille Navale - Menu Principal")
         self.root.configure(bg="#000000")
         self.root.geometry("650x600")
-        self.root.minsize(550, 700)
+        self.root.minsize(550, 600)
 
         # ───────────────────────────────────────────────────────────────
         # FOND ANIMÉ : CANVAS AVEC ÉTOILES
