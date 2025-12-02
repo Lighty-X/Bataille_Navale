@@ -2,10 +2,10 @@ import tkinter as tk
 from tkinter import messagebox
 
 def creer_boutons(parent, afficher_regles, quitter_partie):
-    frame_boutons = tk.Frame(parent, bg="#222222")
+    frame_boutons = tk.Frame(parent, bg="#000000")
     frame_boutons.pack(fill="x", pady=(5, 0))
 
-    frame_center = tk.Frame(frame_boutons, bg="#222222")
+    frame_center = tk.Frame(frame_boutons, bg="#000000")
     frame_center.pack()
 
     tk.Button(frame_center, text="📘 Règles", font=("Arial", 11, "bold"),
@@ -13,6 +13,7 @@ def creer_boutons(parent, afficher_regles, quitter_partie):
 
     tk.Button(frame_center, text="⛔ Quitter", font=("Arial", 11, "bold"),
               command=quitter_partie, bg="#000000", fg="white").pack(side="left", padx=10)
+
 
 def afficher_regles(self):
     reg = tk.Toplevel(self.root)
@@ -41,6 +42,7 @@ def afficher_regles(self):
     tk.Button(reg, text="Fermer", font=("Segoe UI", 12),
               bg="#000000", fg="white",
               relief="flat", command=reg.destroy).pack(pady=10)
+
 
 
 def quitter_partie(self):

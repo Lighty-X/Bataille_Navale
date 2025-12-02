@@ -1,7 +1,5 @@
 from utils import placer_bateau_aleatoire
 
-
-
 def rectangle_arrondi(canvas, x0, y0, x1, y1, r, fill, outline, width=1.2, contour_fond=None):
 
     if contour_fond is None:

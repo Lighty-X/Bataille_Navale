@@ -1,10 +1,10 @@
 import tkinter as tk
+import math
+import winsound
 from tkinter import simpledialog, messagebox
 from utils import NOMS_BATEAUX, COULEURS
-import winsound
 from Fonction_Bataille import rectangle_arrondi
-import math
-
+from Boutons import creer_boutons, afficher_regles, quitter_partie
 
 
 class BatailleNavaleHumainVSHumain:
@@ -85,27 +85,9 @@ class BatailleNavaleHumainVSHumain:
         self.frame_center = tk.Frame(self.frame_boutons, bg=COULEURS["fond"])
         self.frame_center.pack()
 
-        # Bouton RÈGLES
-        self.bouton_regles = tk.Button(
-            self.frame_center,
-            text="📘 Règles",
-            font=("Arial", 11, "bold"),
-            command=self.afficher_regles,
-            bg="#000000",
-            fg="white"
-        )
-        self.bouton_regles.pack(side="left", padx=10)
-
-        # Bouton QUITTER
-        self.bouton_quitter = tk.Button(
-            self.frame_center,
-            text="⛔ Quitter",
-            font=("Arial", 11, "bold"),
-            command=self.quitter_partie,
-            bg="#000000",
-            fg="white"
-        )
-        self.bouton_quitter.pack(side="left", padx=10)
+        creer_boutons(self.root,
+                      lambda: afficher_regles(self),
+                      lambda: quitter_partie(self))
 
         # Historique
         self.historique_frame = tk.Frame(root, bg=COULEURS["fond"])
@@ -120,35 +102,6 @@ class BatailleNavaleHumainVSHumain:
 
         # Initialiser les bindings pour le tour
         self.set_bindings()
-
-    def afficher_regles(self):
-        reg = tk.Toplevel(self.root)
-        reg.title("Règles du jeu")
-        reg.geometry("500x400")
-        reg.configure(bg="#000000")
-
-        tk.Label(reg, text="Règles de la Bataille Navale",
-                 font=("Segoe UI", 18, "bold"), fg="#2aa198", bg="#000000").pack(pady=10)
-
-        texte = (
-            "Nebula Strike - Règles du jeu\n\n"
-            "- Deux joueurs s'affrontent dans une bataille spatiale.\n"
-            "- Chaque joueur possède 5 vaisseaux de tailles différentes.\n"
-            "- Les vaisseaux sont placés sur une grille 10 x 10.\n"
-            "- À tour de rôle, chaque joueur tire sur une case adverse.\n"
-            "- Si la case contient un vaisseau, il est touché, le joueur rejoue.\n"
-            "- Quand toutes les cases d’un vaisseau sont touchées, ce dernier est coulé.\n"
-            "- Le premier joueur qui détruit tous les vaisseaux adverses gagne.\n"
-            "- Attention aux astéroïdes !\n"
-        )
-
-        tk.Label(reg, text=texte, fg="white", bg="#000000",
-                 justify="left", font=("Segoe UI", 12)).pack(padx=20, pady=20)
-
-        tk.Button(reg, text="Fermer", font=("Segoe UI", 12),
-                  bg="#000000", fg="white",
-                  relief="flat", command=reg.destroy).pack(pady=10)
-
 
     def set_bindings(self):
         # Débind puis bind uniquement la grille de l'adversaire
