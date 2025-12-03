@@ -296,13 +296,13 @@ class BatailleNavaleHumainVSOrdinateur:
         if res == "rate":
             winsound.PlaySound("Rate.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_eclaboussure(self.canvas_joueur, x, y)
-            self.label.config(text="L'ennemi rate. À vous!")
+            self.label.config(text="L'ennemi a raté son tir. À nous!")
             self.ajouter_historique("L'ennemi nous laisse la possibilité de contre-attaquer.")
         elif res == "touche":
             winsound.PlaySound("Touche.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_explosion(self.canvas_joueur, x, y)
-            self.label.config(text="L'ennemi touche ! Redirigez les boucliers !")
-            self.ajouter_historique(f"L'ennemi touche ({l+1},{c+1}) ! Il perturbe notre tactique !")
+            self.label.config(text="L'ennemi nous a touché ! Redirigez les boucliers !")
+            self.ajouter_historique(f"L'ennemi nous a touché ({l+1},{c+1}) ! Il perturbe notre tactique !")
             self.tirs_ia_en_attente += [(ll, cc) for (ll, cc) in self.voisins(l, c)
                                          if 0 <= ll < self.taille and 0 <= cc < self.taille and not case_deja_jouee(self.grille_joueur, ll, cc)]
             if tous_coules(self.flotte_joueur):
@@ -313,7 +313,7 @@ class BatailleNavaleHumainVSOrdinateur:
             self.animation_explosion(self.canvas_joueur, x, y, grand=True)
             nom_bat = res[6:]
             self.label.config(text=f" {nom_bat} est hors d'usage, il va se replier !")
-            self.ajouter_historique(f"L'ennemi coule ton {nom_bat} !")
+            self.ajouter_historique(f"L'ennemi à mis hors d'usage ton {nom_bat} !")
             self.tirs_ia_en_attente.clear()
             if tous_coules(self.flotte_joueur):
                 self.fin_partie(False)
@@ -424,11 +424,11 @@ class BatailleNavaleHumainVSOrdinateur:
             self.label.config(text="Bombe de zone : Touché ! Rejoue !")
             msg = "Ta bombe de zone touche plusieurs cases !"
             if bateaux_coules:
-                msg += " Bateaux coulés : " + ", ".join(bateaux_coules)
+                msg += " Vaisseaux touchés : " + ", ".join(bateaux_coules)
             self.ajouter_historique(msg)
             # le joueur rejoue, donc on ne lance pas tour_ia()
         else:
-            self.label.config(text="Bombe de zone ratée... À l'ordi de jouer.")
+            self.label.config(text="Bombe de zone ratée....")
             self.ajouter_historique("Ta bombe de zone ne touche aucun bateau.")
             self.root.after(900, self.tour_ia)
     def voisins(self, l, c):
@@ -444,7 +444,7 @@ class BatailleNavaleHumainVSOrdinateur:
 
     def fin_partie(self, victoire):
         if victoire:
-            messagebox.showinfo("Victoire ", "Bravo ! Tu as gagné la partie !")
+            messagebox.showinfo("Victoire ", "Bravo ! Tu as gagné la bataille !")
         else:
-            messagebox.showinfo("Défaite ", "L'ordinateur a coulé toute ta flotte...")
+            messagebox.showinfo("Défaite ", "L’ennemi est en surnombre, battez en retraite.")
         self.root.destroy()

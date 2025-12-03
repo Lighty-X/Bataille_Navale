@@ -22,29 +22,55 @@ def afficher_regles(self):
     reg.geometry("700x500")
     reg.configure(bg="#000000")
 
-    tk.Label(reg, text="Règles de la Bataille Navale",
+    tk.Label(reg, text="Règles de la Bataille Spatiale",
              font=("Segoe UI", 18, "bold"), fg="#2aa198", bg="#000000").pack(pady=10)
 
     texte = (
         "Nebula Strike - Règles du jeu\n\n"
-        "- Deux joueurs s'affrontent dans une bataille spatiale.\n"
-        "- Chaque joueur possède 5 vaisseaux de tailles différentes.\n"
-        "- Les vaisseaux sont placés sur une grille 10 x 10.\n"
-        "- À tour de rôle, chaque joueur tire sur une case adverse.\n"
-        "- Si la case contient un vaisseau, il est touché, le joueur rejoue.\n"
-        "- Quand toutes les cases d’un vaisseau sont touchées, ce dernier est coulé.\n"
-        "- Le premier joueur qui détruit tous les vaisseaux adverses gagne.\n"
-        "- Attention aux astéroïdes !\n"
+        "Chaque joueur possède 5 vaisseaux de tailles différentes :\n"
+        "- 1 vaisseau de 5 cases\n"
+        "- 1 vaisseau de 4 cases\n"
+        "- 2 vaisseaux de 3 cases\n"
+        "- 1 vaisseau de 1 case\n\n"
+        "Modes de jeu :\n"
+        "- Mode Humain vs Humain :\n"
+        "  * Deux joueurs s'affrontent directement.\n"
+        "  * Les vaisseaux sont placés sur une grille 10 x 10.\n"
+        "  * À tour de rôle, chaque joueur tire sur une case adverse.\n"
+        "  * Si la case contient un vaisseau, il est touché et le joueur rejoue.\n"
+        "  * Quand toutes les cases d’un vaisseau sont touchées, il est coulé.\n"
+        "  * Le premier joueur qui détruit tous les vaisseaux adverses gagne.\n"
+        "  * Attention aux astéroïdes !\n"
+        "\n"
+        "- Mode Humain vs Robot :\n"
+        "  * Affrontez une I.A dans la bataille spatiale.\n"
+        "  * Même règles de placement et de combat que le mode Humain vs Humain.\n"
+        "  * Fonction spéciale : dégâts de zone (utilisez le bouton ou clavier W pour activer).\n"
+        "  * Attention aux astéroïdes !\n"
+        "\n"
+        "Contrôles généraux :\n"
+        "- R : Tourner les bateaux lors du placement.\n"
+        "- X : Passer l’introduction.\n"
+        "- Shift + clic droit : Supprimer un bateau lors du placement.\n"
     )
 
-    tk.Label(reg, text=texte, fg="white", bg="#000000",
-             justify="left", font=("Segoe UI", 12)).pack(padx=20, pady=20)
+    # Frame pour placer Text et Scrollbar côte à côte
+    frame = tk.Frame(reg, bg="#000000")
+    frame.pack(padx=20, pady=20, fill='both', expand=True)
+
+    text_widget = tk.Text(frame, fg="white", bg="#000000", font=("Segoe UI", 12),
+                         wrap='word', relief="flat")
+    text_widget.insert("1.0", texte)
+    text_widget.config(state='disabled')  # Pour éviter la modification du texte
+    text_widget.pack(side="left", fill="both", expand=True)
+
+    scrollbar = tk.Scrollbar(frame, command=text_widget.yview)
+    scrollbar.pack(side="right", fill="y")
+    text_widget.config(yscrollcommand=scrollbar.set)
 
     tk.Button(reg, text="Fermer", font=("Segoe UI", 12),
               bg="#000000", fg="white",
               relief="flat", command=reg.destroy).pack(pady=10)
-
-
 
 def quitter_partie(self):
     # Création de la fenêtre Toplevel

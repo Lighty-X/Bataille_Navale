@@ -8,12 +8,41 @@ from Boutons import creer_boutons, afficher_regles, quitter_partie
 
 
 class BatailleNavaleHumainVSHumain:
-    def __init__(self, root, grille1, grille2):
+    def __init__(self, root, grille1, grille2=None):
         self.root = root
         self.root.minsize(500, 500)
         self.taille = 10
+
+        # Accept either (grille1, grille2) or a single list-of-two-grids passed as grille1
+        if grille2 is None and isinstance(grille1, list) and len(grille1) == 2:
+            # Called as __init__(root, [grille0, grille1])
+            grilles_candidate = grille1
+        else:
+            grilles_candidate = [grille1, grille2]
+
+        # Validate shapes (simple checks)
+        def shape_ok(g):
+            if not isinstance(g, list):
+                return False
+            if len(g) != self.taille:
+                return False
+            return all(isinstance(row, list) and len(row) == self.taille for row in g)
+
+        if not (isinstance(grilles_candidate, list) and len(grilles_candidate) == 2):
+            raise ValueError("Erreur: il faut fournir deux grilles (listes 2D).")
+
+        if not (shape_ok(grilles_candidate[0]) and shape_ok(grilles_candidate[1])):
+            raise ValueError(
+                f"Erreur: les grilles doivent être des listes 2D de {self.taille}x{self.taille}.\n"
+                f"Formes reçues: "
+                f"{(len(grilles_candidate[0]) if isinstance(grilles_candidate[0], list) else 'NA')}x"
+                f"{(len(grilles_candidate[0][0]) if isinstance(grilles_candidate[0], list) and grilles_candidate[0] else 'NA')}, "
+                f"{(len(grilles_candidate[1]) if isinstance(grilles_candidate[1], list) else 'NA')}x"
+                f"{(len(grilles_candidate[1][0]) if isinstance(grilles_candidate[1], list) and grilles_candidate[1] else 'NA')}"
+            )
+
         self.nom_joueurs = self.demander_noms_joueurs()
-        self.grilles = [grille1, grille2]
+        self.grilles = grilles_candidate
         self.flottes = []
 
         self.root.update_idletasks()  # Calcule les dimensions
@@ -41,7 +70,7 @@ class BatailleNavaleHumainVSHumain:
         # Par défaut on ne montre pas les bateaux ; bouton permet d'afficher
         self.montrer_bateaux = [False, False]
 
-        self.root.title("Bataille Navale Humain VS Humain")
+        self.root.title("Bataille Spatiale Humain VS Humain")
         self.root.configure(bg=COULEURS["fond"])
 
         # Label principal
@@ -63,7 +92,7 @@ class BatailleNavaleHumainVSHumain:
             l = tk.Label(f, text=self.nom_joueurs[i], font=("Arial", 14, "bold"),
                          fg=COULEURS["highlight"], bg=COULEURS["fond"])
             l.pack(pady=(0, 5))
-            btn_voir = tk.Button(f, text="Voir mes bateaux", font=("Arial", 11),
+            btn_voir = tk.Button(f, text="Voir mes vaisseaux", font=("Arial", 11),
                                  command=lambda ix=i: self.voir_bateaux(ix))
             btn_voir.pack(pady=2)
             c = tk.Canvas(f, bg=COULEURS["eau"], highlightthickness=0)
@@ -98,7 +127,7 @@ class BatailleNavaleHumainVSHumain:
         self.historique_txt.pack(padx=20, fill="x")
         self.historique = []
 
-        self.ajouter_historique("Bienvenue dans la bataille navale HvH !")
+        self.ajouter_historique("Bienvenue dans la bataille spatiale HvH !")
 
         # Initialiser les bindings pour le tour
         self.set_bindings()
@@ -112,7 +141,7 @@ class BatailleNavaleHumainVSHumain:
 
     def voir_bateaux(self, idx):
         self.montrer_bateaux[idx] = not self.montrer_bateaux[idx]
-        text = "Cacher mes bateaux" if self.montrer_bateaux[idx] else "Voir mes bateaux"
+        text = "Cacher mes vaisseaux" if self.montrer_bateaux[idx] else "Voir mes vaisseaux"
         self.boutons_voir[idx].config(text=text)
         self.redessiner_grilles()
 

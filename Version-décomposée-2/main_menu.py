@@ -15,7 +15,10 @@ class MenuPrincipal:
         self.root.title("Bataille Navale - Menu Principal")
         self.root.configure(bg="#000000")
         self.root.geometry("650x600")
-        self.root.minsize(1500, 600)
+        self.root.minsize(600, 600)
+
+        self.main_frame = tk.Frame(self.root, bg="#000000")
+        self.main_frame.pack(fill="both", expand=True)
 
         # ───────────────────────────────────────────────────────────────
         # FOND ANIMÉ : CANVAS AVEC ÉTOILES
@@ -36,37 +39,47 @@ class MenuPrincipal:
 
     def afficher_intro_starwars(self):
 
-        texte = ("NEBULA STRIKE \n"
-                 "Bienvenue, jeune recrue. La Fédération Galactique fait face à une crise sans précédent. \n"
-                 "Notre capitaine, commandant de la flotte de défense de l'espace klingon, \n"
-                 "a été brutalement assassiné lors d'une mission diplomatique. Le sort en a décidé ainsi, \n"
-                 "et c'est désormais vous qui prenez le commandement de la flotte. \n\n"
-                 "Votre mission : protéger les secteurs stratégiques de la Fédération contre l'invasion klingonne, \n"
-                 "intercepter les vaisseaux ennemis et assurer la sécurité des colonies alliées. \n"
-                 "Chaque décision compte, chaque tir peut changer le cours de la guerre. \n"
-                 "Choisissez vos stratégies avec soin, déployez vos vaisseaux intelligemment et préparez-vous \n"
-                 "à affronter l'ennemi dans les profondeurs de l'espace. \n\n"
-                 "Le destin de la Fédération repose sur vos épaules, Commandant. \n"
-                 "Que la logique de Spock guide vos choix, et que le courage de Kirk inspire vos actions. \n"
-                 "Engagez-vous dans la bataille et faites briller l'étoile de la Fédération au milieu du chaos.")
+        self.root.bind("<x>", self.skip_intro)  # Touche x pour skip
+        self.root.bind("<X>", self.skip_intro)  # Majuscule aussi
 
+        texte = ("NEBULA STRIKE \n" "Bienvenue, jeune recrue. La Fédération Galactique fait face à une crise sans précédent. \n" "Notre capitaine, commandant de la flotte de défense de l'espace klingon, \n" "a été brutalement assassiné lors d'une mission diplomatique. Le sort en a décidé ainsi, \n" "et c'est désormais vous qui prenez le commandement de la flotte. \n\n" "Votre mission : protéger les secteurs stratégiques de la Fédération contre l'invasion klingonne, \n" "intercepter les vaisseaux ennemis et assurer la sécurité des colonies alliées. \n" "Chaque décision compte, chaque tir peut changer le cours de la guerre. \n" "Choisissez vos stratégies avec soin, déployez vos vaisseaux intelligemment et préparez-vous \n" "à affronter l'ennemi dans les profondeurs de l'espace. \n\n" "Le destin de la Fédération repose sur vos épaules, Commandant. \n" "Que la logique de Spock guide vos choix, et que le courage de Kirk inspire vos actions. \n" "Engagez-vous dans la bataille et faites briller l'étoile de la Fédération au milieu du chaos.")
 
+        self.canvas.bind("<Configure>", self.redimensionner_intro)
 
-        # Créer un texte invisible au départ
         self.texte_id = self.canvas.create_text(
             self.canvas.winfo_width() // 2,
             self.canvas.winfo_height(),
             text=texte,
             font=("Segoe UI", 24, "bold"),
             fill="yellow",
-            justify="center"
+            justify="center",
+            width=self.canvas.winfo_width() * 0.8  # largeur responsive
         )
 
         self.intro_y = self.canvas.winfo_height()
         self.intro_opacity = 0
         self.animer_intro()
 
+    def redimensionner_intro(self, event):
+        nouvelle_largeur = event.width * 0.8
+        self.canvas.itemconfig(self.texte_id, width=nouvelle_largeur)
+        self.canvas.coords(self.texte_id, event.width // 2, self.intro_y)
+
+    def skip_intro(self, event=None):
+        # Supprimer le texte si encore affiché
+        if hasattr(self, "texte_id"):
+            self.canvas.delete(self.texte_id)
+
+        # Empêcher l'animation de continuer
+        self.intro_y = -9999  # Force l'arrêt dans animer_intro
+
+        # Accéder au menu directement
+        self.afficher_menu()
+
+
     def animer_intro(self):
+        if self.intro_y < -9000:
+            return
         self.canvas.update()
         h = self.canvas.winfo_height()
 
@@ -270,11 +283,12 @@ class MenuPrincipal:
 
         placer_joueur(0)
 
+
     def launch_game(self):
-        BatailleNavaleHumainVSHumain(self.root, self.grilles, self.grilles[1])
+        print(f"Type de self.grilles: {type(self.grilles)}")
+        print(f"Longueur de self.grilles: {len(self.grilles)}")
+        print(f"Type grille: {type(self.grilles)}")
+        print(f"Type grille: {type(self.grilles)}")
 
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    menu = MenuPrincipal(root)
-    root.mainloop()
+        if self.mode.get() == "HvH":
+            BatailleNavaleHumainVSHumain(self.root, self.grilles)
