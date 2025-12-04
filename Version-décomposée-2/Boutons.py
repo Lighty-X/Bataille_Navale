@@ -1,6 +1,6 @@
 import tkinter as tk
-from tkinter import messagebox
-
+import winsound
+from utils import resource_path
 
 def creer_boutons(parent, afficher_regles, quitter_partie):
     frame_boutons = tk.Frame(parent, bg="#000000")
@@ -19,6 +19,7 @@ def creer_boutons(parent, afficher_regles, quitter_partie):
 def afficher_regles(self):
     reg = tk.Toplevel(self.root)
     reg.title("Règles du jeu")
+    winsound.PlaySound(resource_path("Règles.wav"), winsound.SND_FILENAME | winsound.SND_ASYNC)
     reg.geometry("700x500")
     reg.configure(bg="#000000")
 
@@ -76,6 +77,7 @@ def quitter_partie(self):
     # Création de la fenêtre Toplevel
     quitter_win = tk.Toplevel(self.root)
     quitter_win.title("Quitter")
+    winsound.PlaySound(resource_path("Quitter_Partie.wav"), winsound.SND_FILENAME | winsound.SND_ASYNC)
     quitter_win.geometry("400x200")
     quitter_win.configure(bg="#000000")
 

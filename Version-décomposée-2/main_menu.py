@@ -41,7 +41,7 @@ class MenuPrincipal:
 
         self.root.bind("<x>", self.skip_intro)  # Touche x pour skip
         self.root.bind("<X>", self.skip_intro)  # Majuscule aussi
-
+        winsound.PlaySound(resource_path("Intro.wav"), winsound.SND_FILENAME | winsound.SND_ASYNC)
         texte = ("NEBULA STRIKE \n" "Bienvenue, jeune recrue. La Fédération Galactique fait face à une crise sans précédent. \n" "Notre capitaine, commandant de la flotte de défense de l'espace klingon, \n" "a été brutalement assassiné lors d'une mission diplomatique. Le sort en a décidé ainsi, \n" "et c'est désormais vous qui prenez le commandement de la flotte. \n\n" "Votre mission : protéger les secteurs stratégiques de la Fédération contre l'invasion klingonne, \n" "intercepter les vaisseaux ennemis et assurer la sécurité des colonies alliées. \n" "Chaque décision compte, chaque tir peut changer le cours de la guerre. \n" "Choisissez vos stratégies avec soin, déployez vos vaisseaux intelligemment et préparez-vous \n" "à affronter l'ennemi dans les profondeurs de l'espace. \n\n" "Le destin de la Fédération repose sur vos épaules, Commandant. \n" "Que la logique de Spock guide vos choix, et que le courage de Kirk inspire vos actions. \n" "Engagez-vous dans la bataille et faites briller l'étoile de la Fédération au milieu du chaos.")
 
         self.canvas.bind("<Configure>", self.redimensionner_intro)
