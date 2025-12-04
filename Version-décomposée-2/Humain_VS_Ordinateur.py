@@ -6,6 +6,8 @@ from utils import NOMS_BATEAUX, COULEURS
 from Fonction_Bataille import rectangle_arrondi, creer_grille_et_flotte, case_deja_jouee, tous_coules, trouver_bateau
 from Boutons import creer_boutons, afficher_regles, quitter_partie
 from Noms import NOMS_IA, A_TOI_DE_JOUER, A_TOI_DE_RATER
+from utils import resource_path
+
 
 
 class BatailleNavaleHumainVSOrdinateur:
@@ -252,7 +254,7 @@ class BatailleNavaleHumainVSOrdinateur:
         x = self.canvas_ia.offset_x + c * self.canvas_ia.cell_size + self.canvas_ia.cell_size / 2
         y = self.canvas_ia.offset_y + l * self.canvas_ia.cell_size + self.canvas_ia.cell_size / 2
         if res == "rate":
-            winsound.PlaySound("Rate.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
+            winsound.PlaySound(resource_path("Rate.wav"), winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_eclaboussure(self.canvas_ia, x, y)
             phrase = random.choice(A_TOI_DE_RATER)
             self.label.config(text=phrase)
@@ -260,7 +262,7 @@ class BatailleNavaleHumainVSOrdinateur:
             self.root.after(900, self.tour_ia)
 
         elif res == "touche":
-            winsound.PlaySound("Touche.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
+            winsound.PlaySound(resource_path("Touche.wav"), winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_explosion(self.canvas_ia, x, y)
 
             phrase = random.choice(A_TOI_DE_JOUER)
@@ -273,7 +275,7 @@ class BatailleNavaleHumainVSOrdinateur:
         elif res.startswith("coule"):
             self.animation_explosion(self.canvas_ia, x, y, grand=True)
             nom_bat = res[6:]
-            winsound.PlaySound("Coule.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
+            winsound.PlaySound(resource_path("Coule.wav"), winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.label.config(text=f"{nom_bat} détruit ! Intensifiez les frappes capitaine!")
             self.ajouter_historique(f"Vous avez détruit le {nom_bat} !")
             if tous_coules(self.flotte_ia):
@@ -294,12 +296,12 @@ class BatailleNavaleHumainVSOrdinateur:
         x = self.canvas_joueur.offset_x + c * self.canvas_joueur.cell_size + self.canvas_joueur.cell_size / 2
         y = self.canvas_joueur.offset_y + l * self.canvas_joueur.cell_size + self.canvas_joueur.cell_size / 2
         if res == "rate":
-            winsound.PlaySound("Rate.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
+            winsound.PlaySound(resource_path("Rate.wav"), winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_eclaboussure(self.canvas_joueur, x, y)
             self.label.config(text="L'ennemi a raté son tir. À nous!")
             self.ajouter_historique("L'ennemi nous laisse la possibilité de contre-attaquer.")
         elif res == "touche":
-            winsound.PlaySound("Touche.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
+            winsound.PlaySound(resource_path("Touche.wav"), winsound.SND_FILENAME | winsound.SND_ASYNC)
             self.animation_explosion(self.canvas_joueur, x, y)
             self.label.config(text="L'ennemi nous a touché ! Redirigez les boucliers !")
             self.ajouter_historique(f"L'ennemi nous a touché ({l+1},{c+1}) ! Il perturbe notre tactique !")

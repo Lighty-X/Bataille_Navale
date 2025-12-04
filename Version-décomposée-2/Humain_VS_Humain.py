@@ -5,7 +5,7 @@ from tkinter import simpledialog, messagebox
 from utils import NOMS_BATEAUX, COULEURS
 from Fonction_Bataille import rectangle_arrondi
 from Boutons import creer_boutons, afficher_regles, quitter_partie
-
+from utils import resource_path
 
 class BatailleNavaleHumainVSHumain:
     def __init__(self, root, grille1, grille2=None):
@@ -292,19 +292,20 @@ class BatailleNavaleHumainVSHumain:
         y = canvas.offset_y + l * canvas.cell_size + canvas.cell_size / 2
         if res == "rate":
             try:
-                winsound.PlaySound("Rate.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
+                winsound.PlaySound(resource_path("Rate.wav"), winsound.SND_FILENAME | winsound.SND_ASYNC)
             except Exception:
                 pass
             self.animation_eclaboussure(canvas, x, y)
         elif res == "touche":
             try:
-                winsound.PlaySound("Touche.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
+                winsound.PlaySound(resource_path("Touche.wav"), winsound.SND_FILENAME | winsound.SND_ASYNC)
             except Exception:
                 pass
             self.animation_explosion(canvas, x, y)
         elif res.startswith("coule"):
             try:
-                winsound.PlaySound("Coule.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
+                winsound.PlaySound(resource_path("Coule.wav"), winsound.SND_FILENAME | winsound.SND_ASYNC)
+
             except Exception:
                 pass
             self.animation_explosion(canvas, x, y, grand=True)

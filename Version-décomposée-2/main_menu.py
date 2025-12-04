@@ -7,7 +7,7 @@ from Humain_VS_Ordinateur import BatailleNavaleHumainVSOrdinateur
 from placement import PlacementManuel
 from utils import creer_grille, placer_bateau_aleatoire, NOMS_BATEAUX
 from Boutons import creer_boutons, afficher_regles, quitter_partie
-
+from utils import resource_path
 
 class MenuPrincipal:
     def __init__(self, root):
@@ -240,8 +240,7 @@ class MenuPrincipal:
     # ───────────────────────────────────────────────────────────────
     def start_game(self):
         self.main_frame.destroy()
-        winsound.PlaySound("Debut.wav",
-                           winsound.SND_FILENAME | winsound.SND_ASYNC)
+        winsound.PlaySound(resource_path("Debut.wav"), winsound.SND_FILENAME | winsound.SND_ASYNC)
 
         if self.mode.get() == "HvM":
             self.setup_joueur_vs_machine()
