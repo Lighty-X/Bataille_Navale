@@ -32,7 +32,7 @@ def afficher_regles(self):
         "- 1 vaisseau de 5 cases\n"
         "- 1 vaisseau de 4 cases\n"
         "- 2 vaisseaux de 3 cases\n"
-        "- 1 vaisseau de 1 case\n\n"
+        "- 1 vaisseau de 2 cases\n\n"
         "Modes de jeu :\n"
         "- Mode Humain vs Humain :\n"
         "  * Deux joueurs s'affrontent directement.\n"
